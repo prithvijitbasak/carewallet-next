@@ -1,0 +1,156 @@
+/* CSS for Add Expense Component */
+.popup-wrapper {
+  padding: 20px 10px;
+  width: 100%;
+}
+
+.popup-card {
+  max-width: 1100px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  padding: 30px;
+  border: 1px solid #e5e7eb;
+}
+
+.popup-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 24px;
+}
+
+.popup-card-top h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.popup-card-add-more-btn {
+  background-color: #4caf50;
+  color: #ffffff !important;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.popup-card-add-more-btn:hover {
+  background-color: #43a047;
+}
+
+.input-field-div {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background-color: #f9fafb;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.input-field {
+  display: block;
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  padding: 10px 14px;
+  outline: none;
+  color: #111827;
+  background-color: #ffffff;
+  flex: 1 1 140px;
+  min-width: 120px;
+  transition: border-color 0.2s;
+}
+
+.input-field:focus {
+  border-color: #4caf50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.note-area {
+  flex: 2 1 180px;
+  resize: none;
+  height: 42px;
+}
+
+.category-field {
+  position: relative;
+  flex: 1 1 140px;
+  min-width: 120px;
+}
+
+.category-field > input {
+  width: 100% !important;
+  cursor: pointer;
+}
+
+.category-dropdown {
+  position: absolute;
+  z-index: 30;
+  width: 100%;
+  max-height: 200px;
+  top: 48px;
+  overflow-y: auto;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.category-dropdown-items {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.15s;
+}
+
+.category-dropdown-items:hover {
+  background-color: #f3f4f6;
+  color: #4caf50;
+}
+
+.delete-expense-icon {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+  background: none;
+  border: none;
+}
+
+.delete-expense-icon:hover {
+  background-color: #fee2e2;
+}
+
+.submit-btn {
+  border: none;
+  background-color: #4caf50;
+  padding: 12px 36px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff !important;
+  border-radius: 10px;
+  transition: 0.2s all ease-in-out;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.submit-btn:hover {
+  background-color: #43a047;
+}

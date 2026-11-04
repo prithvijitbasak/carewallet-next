@@ -1,0 +1,61 @@
+.welcome-add-expense-banner {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding-top: 30px;
+  flex-wrap: wrap;
+}
+
+.name-card,
+.add-expense-card {
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 24px 28px;
+  flex: 1 1 300px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.welcome-card-text {
+  color: #4b5563;
+  font-weight: 500;
+  font-size: 18px;
+  padding-bottom: 8px;
+}
+
+.profile-name {
+  font-size: 24px;
+  color: #111827;
+  font-weight: 700;
+}
+
+.add-expense-card-text {
+  font-size: 16px;
+  padding-bottom: 6px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.add-expense-btn-div {
+  margin-top: 14px;
+}
+
+.add-expense-btn {
+  background-color: #4caf50;
+  border-radius: 8px;
+  border: 2px solid #4caf50;
+  color: #ffffff !important;
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+  font-size: 15px;
+  padding: 8px 20px;
+  transition: 0.2s all ease-in-out;
+  display: inline-block;
+}
+
+.add-expense-btn:hover {
+  background-color: #43a047;
+  border-color: #43a047;
+  color: #ffffff !important;
+}

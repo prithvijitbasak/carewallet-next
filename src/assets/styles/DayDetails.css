@@ -1,0 +1,32 @@
+.day-details-contents {
+  padding-top: 20px;
+}
+
+.heading-date {
+  text-align: center;
+  font-size: 30px;
+  padding-bottom: 30px;
+}
+
+.expenses-card-container {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  row-gap: 30px;
+  column-gap: 30px;
+}
+
+.expense-card {
+  background-color: #ffffff;
+  box-shadow: var(--global-box-shadow);
+  padding: 10px 15px;
+  /* flex: 1 1 10px; */
+  width: 30%;
+}
+
+.no-expense-text {
+  text-align: center;
+  margin: 0 auto;
+  font-weight: 500;
+  font-size: 20px;
+}

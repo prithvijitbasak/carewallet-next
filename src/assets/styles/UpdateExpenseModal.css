@@ -1,0 +1,45 @@
+.modal-form input,
+.form-textarea {
+  display: block;
+  width: 100%;
+  border-radius: 15px;
+  border: none;
+  box-shadow: #0000000f 0 2px 4px inset;
+  padding: 15px 20px;
+  font-weight: 500;
+  font-size: 16px;
+  margin-bottom: 15px;
+  outline: none;
+}
+
+.category-field {
+  width: 100%;
+}
+
+.update-modal-wrapper {
+  z-index: 1000;
+}
+
+.update-modal-container {
+  z-index: 1001;
+}
+
+.update-modal-contents {
+  padding: 20px 25px;
+}
+
+.close-btn-div {
+  padding-bottom: 10px;
+}
+
+.modal-heading {
+  padding-bottom: 20px;
+}
+
+.update-btn {
+  padding: 10px 15px;
+}
+
+.close-btn {
+  padding: 8px 10px;
+}
