@@ -3,10 +3,10 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 export interface UserType {
   fullName: string;
   username: string;
-  email: string;
-  phone: string;
-  role: string;
-  timezone: string;
+  email?: string;
+  phone?: string;
+  role?: string;
+  timezone?: string;
   image?: {
     data: string;
     contentType: string;
@@ -22,7 +22,7 @@ export interface AuthState {
   error: string | null;
 }
 
-const initialState: AuthState = {
+export const initialAuthState: AuthState = {
   user: null,
   isLogin: false,
   loading: true,
@@ -70,7 +70,7 @@ export const logoutUser = createAsyncThunk(
 
 export const authSlice = createSlice({
   name: "auth",
-  initialState,
+  initialState: initialAuthState,
   reducers: {
     setUser: (state, action: PayloadAction<UserType | null>) => {
       state.user = action.payload;

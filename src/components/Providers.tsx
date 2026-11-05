@@ -4,9 +4,9 @@ import React, { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ToastContainer } from "react-toastify";
 import { Provider } from "react-redux";
-import { store } from "@/store";
-import { useAppDispatch } from "@/store/hooks";
-import { fetchUser } from "@/store/slices/authSlice";
+import { store } from "@/redux/store";
+import { useAppDispatch } from "@/redux/hooks";
+import { fetchUser } from "@/redux/slices/authSlice";
 
 function AuthInitializer({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch();

@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import {
   fetchUser,
   logoutUser,
@@ -10,7 +10,7 @@ import {
   setIsLogin,
   updateUser,
   UserType,
-} from "@/store/slices/authSlice";
+} from "@/redux/slices/authSlice";
 
 export type { UserType };
 
