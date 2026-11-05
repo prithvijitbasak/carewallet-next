@@ -47,10 +47,6 @@ export async function POST(req: NextRequest) {
     }
 
     const accessToken = userExist.generateAccessToken();
-    const refreshToken = userExist.generateRefreshToken();
-
-    userExist.refreshToken = refreshToken;
-    await userExist.save();
 
     const response = NextResponse.json(
       {
@@ -61,8 +57,11 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
 
-    response.cookies.set(cookieOptions.accessToken.name, accessToken, cookieOptions.accessToken);
-    response.cookies.set(cookieOptions.refreshToken.name, refreshToken, cookieOptions.refreshToken);
+    response.cookies.set(
+      cookieOptions.accessToken.name,
+      accessToken,
+      cookieOptions.accessToken
+    );
 
     return response;
   } catch (error) {

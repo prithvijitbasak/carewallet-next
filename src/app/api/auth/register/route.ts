@@ -75,12 +75,8 @@ export async function POST(req: NextRequest) {
       timezone,
     });
 
-    // 5. Generate tokens
-    const refreshToken = userCreated.generateRefreshToken();
+    // 5. Generate token (valid for 30 days)
     const accessToken = userCreated.generateAccessToken();
-
-    userCreated.refreshToken = refreshToken;
-    await userCreated.save();
 
     const response = NextResponse.json(
       {
@@ -91,9 +87,12 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
 
-    // Set cookies
-    response.cookies.set(cookieOptions.accessToken.name, accessToken, cookieOptions.accessToken);
-    response.cookies.set(cookieOptions.refreshToken.name, refreshToken, cookieOptions.refreshToken);
+    // Set cookie
+    response.cookies.set(
+      cookieOptions.accessToken.name,
+      accessToken,
+      cookieOptions.accessToken
+    );
 
     return response;
   } catch (error: any) {

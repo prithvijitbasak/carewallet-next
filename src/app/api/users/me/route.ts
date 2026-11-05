@@ -12,7 +12,6 @@ export async function GET(req: NextRequest) {
     const userProfile: any = user.toObject();
     delete userProfile._id;
     delete userProfile.password;
-    delete userProfile.refreshToken;
 
     if (userProfile.image && userProfile.image.data) {
       // If it's a Buffer, serialize to base64

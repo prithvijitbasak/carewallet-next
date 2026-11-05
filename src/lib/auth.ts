@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
 import connectDb from "./db";
 import User, { IUser } from "@/models/User";
@@ -39,10 +39,10 @@ export async function getAuthenticatedUser(
     await connectDb();
     const userData = await User.findById(decoded.userId).select("-password -__v");
 
-    if (!userData || !userData.refreshToken) {
+    if (!userData) {
       return {
         user: null,
-        error: "Unauthorized: Session expired or user logged out!",
+        error: "Unauthorized: User not found or session invalid!",
         status: 401,
       };
     }
@@ -52,8 +52,8 @@ export async function getAuthenticatedUser(
     if (error.name === "TokenExpiredError") {
       return {
         user: null,
-        error: "Forbidden: Access token has expired. Refresh required.",
-        status: 403,
+        error: "Unauthorized: Access token has expired.",
+        status: 401,
       };
     }
 
@@ -71,15 +71,7 @@ export const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax" as const,
-    maxAge: 6 * 60 * 60, // 6 hours in seconds
-    path: "/",
-  },
-  refreshToken: {
-    name: "refreshToken",
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax" as const,
-    maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
+    maxAge: 30 * 24 * 60 * 60, // 30 days in seconds
     path: "/",
   },
 };

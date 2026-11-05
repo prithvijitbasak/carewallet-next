@@ -73,7 +73,7 @@ export async function PUT(req: NextRequest) {
     const updatedUser = await User.findByIdAndUpdate(userId, updates, {
       new: true,
       runValidators: true,
-    }).select("-password -refreshToken");
+    }).select("-password");
 
     if (!updatedUser) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });

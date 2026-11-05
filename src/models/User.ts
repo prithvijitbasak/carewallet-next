@@ -15,11 +15,9 @@ export interface IUser extends Document {
   password: string;
   role: string;
   timezone: string;
-  refreshToken?: string | null;
   createdAt: Date;
   updatedAt: Date;
   generateAccessToken(): string;
-  generateRefreshToken(): string;
   comparePassword(password: string): Promise<boolean>;
 }
 
@@ -65,9 +63,6 @@ const UserSchema = new Schema<IUser>(
       required: true,
       trim: true,
     },
-    refreshToken: {
-      type: String,
-    },
   },
   {
     timestamps: true,
@@ -80,17 +75,7 @@ UserSchema.methods.generateAccessToken = function () {
       userId: this._id.toString(),
     },
     process.env.JWT_ACCESS_KEY as string,
-    { expiresIn: "6h" }
-  );
-};
-
-UserSchema.methods.generateRefreshToken = function () {
-  return jwt.sign(
-    {
-      userId: this._id.toString(),
-    },
-    process.env.JWT_REFRESH_KEY as string,
-    { expiresIn: "7d" }
+    { expiresIn: "30d" }
   );
 };
 
