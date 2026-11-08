@@ -5,16 +5,29 @@ import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import useTotalExpense from "@/hooks/useTotalExpense";
 
-const MonthDetailsCard: React.FC = () => {
+interface MonthDetailsCardProps {
+  totalThisMonthExpenses?: number;
+  initialTotalExpenses?: number;
+  username?: string;
+}
+
+const MonthDetailsCard: React.FC<MonthDetailsCardProps> = ({
+  totalThisMonthExpenses,
+  initialTotalExpenses,
+  username: initialUsername,
+}) => {
   const date = new Date();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const year = date.getFullYear();
   const { user } = useAuth();
+  const username = initialUsername || user?.username;
 
-  const { total, loading, error } = useTotalExpense("month", {
-    month,
-    year,
-  });
+  const initialVal = totalThisMonthExpenses ?? initialTotalExpenses;
+
+  const { total, loading, error } = useTotalExpense(
+    "month",
+    initialVal === undefined ? { month, year } : {}
+  );
 
   return (
     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-between">
@@ -25,7 +38,9 @@ const MonthDetailsCard: React.FC = () => {
         <p className="text-gray-700 font-medium text-base pb-5">
           Total Expenses ={" "}
           <span className="font-bold text-red-600">
-            {loading
+            {initialVal !== undefined
+              ? `₹${Number(initialVal).toFixed(2)}`
+              : loading
               ? "Loading..."
               : error
               ? "Error"
@@ -35,7 +50,11 @@ const MonthDetailsCard: React.FC = () => {
       </div>
       <div>
         <Link
-          href={`/${user?.username}/month-details?month=${month}&year=${year}`}
+          href={
+            username
+              ? `/${username}/month-details?month=${month}&year=${year}`
+              : "#"
+          }
           className="inline-block bg-[#4caf50] hover:bg-[#43a047] text-white font-semibold py-2 px-5 rounded-lg transition-colors text-sm shadow-sm"
         >
           See Details

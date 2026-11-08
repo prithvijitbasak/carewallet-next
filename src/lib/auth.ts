@@ -1,7 +1,8 @@
 import { NextRequest } from "next/server";
+import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
-import connectDb from "./db";
-import User, { IUser } from "@/models/User";
+import { IUser } from "@/models/User";
+import { userRepository } from "@/repositories/user.repository";
 
 export interface DecodedToken {
   userId: string;
@@ -9,20 +10,18 @@ export interface DecodedToken {
   exp?: number;
 }
 
-export async function getAuthenticatedUser(
-  req: NextRequest
+export async function verifyUserToken(
+  token?: string | null
 ): Promise<{ user: IUser | null; error: string | null; status: number }> {
+  if (!token) {
+    return {
+      user: null,
+      error: "Unauthorized: Access token not provided!",
+      status: 401,
+    };
+  }
+
   try {
-    const token = req.cookies.get("accessToken")?.value;
-
-    if (!token) {
-      return {
-        user: null,
-        error: "Unauthorized: Access token not provided!",
-        status: 401,
-      };
-    }
-
     const decoded = jwt.verify(
       token,
       process.env.JWT_ACCESS_KEY as string
@@ -36,8 +35,7 @@ export async function getAuthenticatedUser(
       };
     }
 
-    await connectDb();
-    const userData = await User.findById(decoded.userId).select("-password -__v");
+    const userData = await userRepository.findById(decoded.userId);
 
     if (!userData) {
       return {
@@ -62,6 +60,33 @@ export async function getAuthenticatedUser(
       error: "Unauthorized: Invalid token!",
       status: 401,
     };
+  }
+}
+
+export async function getAuthenticatedUser(
+  req: NextRequest
+): Promise<{ user: IUser | null; error: string | null; status: number }> {
+  // 1. Check custom request header "accessToken" (raw token value, no "Bearer")
+  let token =
+    req.headers.get("accessToken")?.trim() ||
+    req.headers.get("accesstoken")?.trim();
+
+  // 2. Check Cookie for standard browser requests
+  if (!token) {
+    token = req.cookies.get("accessToken")?.value;
+  }
+
+  return verifyUserToken(token);
+}
+
+export async function getAuthenticatedUserFromCookies(): Promise<IUser | null> {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("accessToken")?.value;
+    const { user } = await verifyUserToken(token);
+    return user;
+  } catch {
+    return null;
   }
 }
 

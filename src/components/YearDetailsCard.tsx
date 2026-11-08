@@ -4,12 +4,28 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 
-const YearDetailsCard: React.FC = () => {
-  const [totalExpense, setTotalExpense] = useState<number | null>(null);
+interface YearDetailsCardProps {
+  totalThisYearExpenses?: number;
+  initialTotalExpense?: number;
+  username?: string;
+}
+
+const YearDetailsCard: React.FC<YearDetailsCardProps> = ({
+  totalThisYearExpenses,
+  initialTotalExpense,
+  username: initialUsername,
+}) => {
+  const initialVal = totalThisYearExpenses ?? initialTotalExpense;
+  const [totalExpense, setTotalExpense] = useState<number | null>(
+    initialVal !== undefined ? initialVal : null
+  );
   const { user } = useAuth();
+  const username = initialUsername || user?.username;
   const currentYear = new Date().getFullYear();
 
   useEffect(() => {
+    if (initialVal !== undefined) return;
+
     const fetchTotalYearExpense = async () => {
       try {
         const response = await fetch(
@@ -29,7 +45,7 @@ const YearDetailsCard: React.FC = () => {
     };
 
     fetchTotalYearExpense();
-  }, [currentYear]);
+  }, [currentYear, initialVal]);
 
   return (
     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-between">
@@ -48,7 +64,9 @@ const YearDetailsCard: React.FC = () => {
       </div>
       <div>
         <Link
-          href={`/${user?.username}/year-details?year=${currentYear}`}
+          href={
+            username ? `/${username}/year-details?year=${currentYear}` : "#"
+          }
           className="inline-block bg-[#4caf50] hover:bg-[#43a047] text-white font-semibold py-2 px-5 rounded-lg transition-colors text-sm shadow-sm"
         >
           See Details
