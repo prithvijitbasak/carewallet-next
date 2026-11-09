@@ -1,3 +1,4 @@
 export * from "./dashboard.service";
 export * from "./add-expense.service";
 export * from "./analytics.service";
+export * from "./reports.service";

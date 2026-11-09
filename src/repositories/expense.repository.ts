@@ -235,6 +235,55 @@ export class ExpenseRepository {
 
     return finalData;
   }
+
+  async getDateRangeReport(
+    userId: string | mongoose.Types.ObjectId,
+    startDate: Date,
+    endDate: Date,
+    page: number = 1,
+    limit: number = 10
+  ) {
+    await connectDb();
+
+    const skip = (page - 1) * limit;
+    const matchQuery = {
+      user: new mongoose.Types.ObjectId(userId),
+      date: { $gte: startDate, $lte: endDate },
+    };
+
+    const [totalStats, expenses] = await Promise.all([
+      Expense.aggregate([
+        { $match: matchQuery },
+        {
+          $group: {
+            _id: null,
+            totalAmount: { $sum: "$amount" },
+            totalCount: { $sum: 1 },
+          },
+        },
+      ]),
+      Expense.find(matchQuery)
+        .select("_id title amount category date notes createdAt updatedAt")
+        .sort({ date: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+    ]);
+
+    const totalAmount = totalStats.length > 0 ? totalStats[0].totalAmount : 0;
+    const totalRecords = totalStats.length > 0 ? totalStats[0].totalCount : 0;
+
+    return {
+      totalAmount: totalAmount.toFixed(2),
+      pagination: {
+        totalRecords,
+        currentPage: page,
+        totalPages: Math.ceil(totalRecords / limit) || 1,
+        limit,
+      },
+      expenses,
+    };
+  }
 }
 
 export const expenseRepository = new ExpenseRepository();
