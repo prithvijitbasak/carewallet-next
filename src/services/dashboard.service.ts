@@ -2,7 +2,9 @@ import { IUser } from "@/models/User";
 import {
   expenseRepository,
   DashboardExpenseSummary,
+  ExpenseCategoryBreakdown,
 } from "@/repositories/expense.repository";
+import { expenseCategories } from "@/constants/expenseCategories";
 
 export interface DashboardData extends DashboardExpenseSummary {
   isLogin: boolean;
@@ -15,6 +17,10 @@ export interface DashboardData extends DashboardExpenseSummary {
   todayExpenses: number;
   monthExpenses: number;
   yearExpenses: number;
+  monthAnalytics: ExpenseCategoryBreakdown[];
+  yearAnalytics: ExpenseCategoryBreakdown[];
+  month: number;
+  year: number;
 }
 
 export class DashboardService {
@@ -58,14 +64,29 @@ export class DashboardService {
     const startOfYear = new Date(yearNum, 0, 1, 0, 0, 0, 0);
     const endOfYear = new Date(yearNum, 11, 31, 23, 59, 59, 999);
 
-    const summary = await expenseRepository.getDashboardSummary(user._id, {
-      startOfToday,
-      endOfToday,
-      startOfMonth,
-      endOfMonth,
-      startOfYear,
-      endOfYear,
-    });
+    const startOfNextMonth = new Date(yearNum, monthNum + 1, 1, 0, 0, 0, 0);
+    const startOfNextYear = new Date(yearNum + 1, 0, 1, 0, 0, 0, 0);
+
+    const [summary, monthAnalytics, yearAnalytics] = await Promise.all([
+      expenseRepository.getDashboardSummary(user._id, {
+        startOfToday,
+        endOfToday,
+        startOfMonth,
+        endOfMonth,
+        startOfYear,
+        endOfYear,
+      }),
+      expenseRepository.getCategoryAnalytics(
+        user._id,
+        startOfMonth,
+        startOfNextMonth
+      ),
+      expenseRepository.getCategoryAnalytics(
+        user._id,
+        startOfYear,
+        startOfNextYear
+      ),
+    ]);
 
     return {
       isLogin: true,
@@ -81,10 +102,19 @@ export class DashboardService {
       todayExpenses: summary.totalTodayExpenses,
       monthExpenses: summary.totalThisMonthExpenses,
       yearExpenses: summary.totalThisYearExpenses,
+      monthAnalytics,
+      yearAnalytics,
+      month: monthNum + 1,
+      year: yearNum,
     };
   }
 
   getEmptyDashboardData(): DashboardData {
+    const emptyCategories = expenseCategories.map((cat) => ({
+      category: cat,
+      totalAmount: 0,
+    }));
+
     return {
       isLogin: false,
       user: null,
@@ -96,6 +126,10 @@ export class DashboardService {
       todayExpenses: 0,
       monthExpenses: 0,
       yearExpenses: 0,
+      monthAnalytics: emptyCategories,
+      yearAnalytics: emptyCategories,
+      month: new Date().getMonth() + 1,
+      year: new Date().getFullYear(),
     };
   }
 }

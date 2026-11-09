@@ -25,9 +25,10 @@ interface MonthAndYearChartProps {
   typeOfChart: "month" | "year";
   month?: number | string;
   year: number | string;
+  initialData?: ExpenseCategoryItem[];
 }
 
-interface ExpenseCategoryItem {
+export interface ExpenseCategoryItem {
   category: string;
   totalAmount: number;
 }
@@ -36,9 +37,14 @@ const MonthAndYearChart: React.FC<MonthAndYearChartProps> = ({
   typeOfChart,
   month,
   year,
+  initialData,
 }) => {
-  const [expenseData, setExpenseData] = useState<ExpenseCategoryItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [expenseData, setExpenseData] = useState<ExpenseCategoryItem[]>(
+    initialData && initialData.length > 0 ? initialData : []
+  );
+  const [loading, setLoading] = useState(
+    !(initialData && initialData.length > 0)
+  );
 
   const fetchURL =
     typeOfChart === "month"
@@ -46,6 +52,12 @@ const MonthAndYearChart: React.FC<MonthAndYearChartProps> = ({
       : `/api/expenses/analytics/year?year=${year}`;
 
   useEffect(() => {
+    if (initialData && initialData.length > 0) {
+      setExpenseData(initialData);
+      setLoading(false);
+      return;
+    }
+
     const fetchExpenses = async () => {
       try {
         setLoading(true);
@@ -65,7 +77,7 @@ const MonthAndYearChart: React.FC<MonthAndYearChartProps> = ({
     };
 
     fetchExpenses();
-  }, [typeOfChart, month, year, fetchURL]);
+  }, [typeOfChart, month, year, fetchURL, initialData]);
 
   if (loading || !expenseData.length) {
     return (

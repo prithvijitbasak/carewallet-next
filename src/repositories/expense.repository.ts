@@ -1,6 +1,12 @@
 import mongoose from "mongoose";
 import connectDb from "@/lib/db";
 import Expense from "@/models/Expense";
+import { expenseCategories } from "@/constants/expenseCategories";
+
+export interface ExpenseCategoryBreakdown {
+  category: string;
+  totalAmount: number;
+}
 
 export interface DashboardExpenseSummary {
   totalTodayExpenses: number;
@@ -91,6 +97,47 @@ export class ExpenseRepository {
       totalThisMonthExpenses,
       totalThisYearExpenses,
     };
+  }
+
+  async getCategoryAnalytics(
+    userId: string | mongoose.Types.ObjectId,
+    startDate: Date,
+    endDate: Date
+  ): Promise<ExpenseCategoryBreakdown[]> {
+    await connectDb();
+
+    const aggregation = await Expense.aggregate([
+      {
+        $match: {
+          user: new mongoose.Types.ObjectId(userId),
+          date: { $gte: startDate, $lt: endDate },
+        },
+      },
+      {
+        $group: {
+          _id: "$category",
+          totalAmount: { $sum: "$amount" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          category: "$_id",
+          totalAmount: 1,
+        },
+      },
+      {
+        $sort: { totalAmount: -1 },
+      },
+    ]);
+
+    return expenseCategories.map((cat) => {
+      const found = aggregation.find((a) => a.category === cat);
+      return {
+        category: cat,
+        totalAmount: found ? found.totalAmount : 0,
+      };
+    });
   }
 }
 

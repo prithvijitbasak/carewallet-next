@@ -29,6 +29,10 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
     data?.totalThisMonthExpenses ?? data?.monthExpenses ?? 0;
   const totalThisYearExpenses =
     data?.totalThisYearExpenses ?? data?.yearExpenses ?? 0;
+  const monthAnalytics = data?.monthAnalytics ?? [];
+  const yearAnalytics = data?.yearAnalytics ?? [];
+  const month = data?.month ?? new Date().getMonth() + 1;
+  const year = data?.year ?? new Date().getFullYear();
 
   return (
     <div className="max-w-7xl mx-auto pb-16 space-y-8">
@@ -56,7 +60,12 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
       </div>
 
       <SearchBoxSection />
-      <DashboardAnalytics />
+      <DashboardAnalytics
+        monthAnalytics={monthAnalytics}
+        yearAnalytics={yearAnalytics}
+        month={month}
+        year={year}
+      />
     </div>
   );
 }
