@@ -151,6 +151,90 @@ export class ExpenseRepository {
       .limit(limit)
       .lean();
   }
+
+  async getLast7DaysAnalytics(
+    userId: string | mongoose.Types.ObjectId,
+    timezone?: string
+  ): Promise<any[]> {
+    await connectDb();
+
+    const today = new Date();
+    const tz = timezone || "UTC";
+
+    const startDate = new Date(today);
+    startDate.setDate(today.getDate() - 6);
+    startDate.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(today);
+    endDate.setHours(23, 59, 59, 999);
+
+    const analytics = await Expense.aggregate([
+      {
+        $match: {
+          user: new mongoose.Types.ObjectId(userId),
+          date: { $gte: startDate, $lte: endDate },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            dateStr: {
+              $dateToString: {
+                format: "%d-%m-%Y",
+                date: "$date",
+                timezone: tz,
+              },
+            },
+            category: "$category",
+          },
+          totalAmount: { $sum: "$amount" },
+        },
+      },
+    ]);
+
+    const resultMap: Record<string, Record<string, number>> = {};
+    analytics.forEach((item) => {
+      const { dateStr, category } = item._id;
+      if (!resultMap[dateStr]) resultMap[dateStr] = {};
+      resultMap[dateStr][category] = item.totalAmount;
+    });
+
+    const finalData: any[] = [];
+    const categories = expenseCategories;
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+
+      const day = String(d.getDate()).padStart(2, "0");
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const year = d.getFullYear();
+      const dateKey = `${day}-${month}-${year}`;
+
+      let dayName = "";
+      try {
+        dayName = d.toLocaleDateString("en-US", {
+          weekday: "short",
+          timeZone: tz,
+        });
+      } catch {
+        dayName = d.toLocaleDateString("en-US", { weekday: "short" });
+      }
+
+      const dayEntry: Record<string, any> = {
+        date: dateKey,
+        day: dayName,
+      };
+
+      categories.forEach((cat) => {
+        dayEntry[cat] = resultMap[dateKey]?.[cat] || 0;
+      });
+
+      finalData.push(dayEntry);
+    }
+
+    return finalData;
+  }
 }
 
 export const expenseRepository = new ExpenseRepository();

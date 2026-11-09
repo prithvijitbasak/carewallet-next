@@ -13,10 +13,21 @@ import {
 } from "recharts";
 import CustomTooltip from "./CustomTooltip";
 
-const WeeklyExpenseChart: React.FC = () => {
-  const [last7DaysData, setLast7DaysData] = useState<any[]>([]);
+interface WeeklyExpenseChartProps {
+  initialData?: any[];
+}
+
+const WeeklyExpenseChart: React.FC<WeeklyExpenseChartProps> = ({
+  initialData = [],
+}) => {
+  const [last7DaysData, setLast7DaysData] = useState<any[]>(initialData);
 
   useEffect(() => {
+    if (initialData && initialData.length > 0) {
+      setLast7DaysData(initialData);
+      return;
+    }
+
     const fetchLast7DaysData = async () => {
       try {
         const res = await fetch("/api/expenses/analytics/last7days", {
@@ -34,7 +45,7 @@ const WeeklyExpenseChart: React.FC = () => {
     };
 
     fetchLast7DaysData();
-  }, []);
+  }, [initialData]);
 
   const CATEGORY_COLORS: Record<string, string> = {
     Savings: "#2e7d32",
