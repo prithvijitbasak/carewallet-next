@@ -13,15 +13,40 @@ interface InputFieldItem {
   note: string;
 }
 
-const AddExpense: React.FC = () => {
+interface AddExpenseProps {
+  initialCategories?: string[];
+  defaultDate?: string;
+}
+
+const AddExpense: React.FC<AddExpenseProps> = ({
+  initialCategories = [],
+  defaultDate = "",
+}) => {
   const [inputFields, setInputFields] = useState<InputFieldItem[]>([
-    { id: 1, title: "", amount: "", category: "", date: "", note: "" },
+    {
+      id: 1,
+      title: "",
+      amount: "",
+      category: "",
+      date: defaultDate || "",
+      note: "",
+    },
   ]);
 
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<string[]>(initialCategories);
   const [openCategoryDropdown, setOpenCategoryDropdown] = useState<number | null>(
     null
   );
+
+  useEffect(() => {
+    if (defaultDate) {
+      setInputFields((prev) =>
+        prev.map((field) =>
+          field.date ? field : { ...field, date: defaultDate }
+        )
+      );
+    }
+  }, [defaultDate]);
 
   const handleChange = (id: number, field: keyof InputFieldItem, value: string) => {
     setInputFields((prevFields) =>
@@ -39,7 +64,7 @@ const AddExpense: React.FC = () => {
         title: "",
         amount: "",
         category: "",
-        date: "",
+        date: defaultDate || "",
         note: "",
       },
     ]);
@@ -89,7 +114,14 @@ const AddExpense: React.FC = () => {
       if (response.ok && data.success) {
         toast.success("Expenses added successfully!");
         setInputFields([
-          { id: 1, title: "", amount: "", category: "", date: "", note: "" },
+          {
+            id: 1,
+            title: "",
+            amount: "",
+            category: "",
+            date: defaultDate || "",
+            note: "",
+          },
         ]);
       } else {
         toast.error(data.message || "Failed to add expenses");
@@ -105,6 +137,11 @@ const AddExpense: React.FC = () => {
   };
 
   useEffect(() => {
+    if (initialCategories && initialCategories.length > 0) {
+      setCategories(initialCategories);
+      return;
+    }
+
     const fetchCategories = async () => {
       try {
         const response = await fetch("/api/expenses/categories");
@@ -124,7 +161,7 @@ const AddExpense: React.FC = () => {
     };
 
     fetchCategories();
-  }, []);
+  }, [initialCategories]);
 
   return (
     <div className="w-full max-w-6xl mx-auto py-6 px-2 md:px-4">

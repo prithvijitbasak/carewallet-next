@@ -139,6 +139,18 @@ export class ExpenseRepository {
       };
     });
   }
+
+  async getRecentExpenses(
+    userId: string | mongoose.Types.ObjectId,
+    limit: number = 5
+  ) {
+    await connectDb();
+
+    return Expense.find({ user: new mongoose.Types.ObjectId(userId) })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .lean();
+  }
 }
 
 export const expenseRepository = new ExpenseRepository();
