@@ -1,5 +1,4 @@
 import React from "react";
-import DashBanner from "@/components/DashBanner";
 import ClockCard from "@/components/ClockCard";
 import WelcomeAddBanner from "@/components/WelcomeAddBanner";
 import DayDetailsCard from "@/components/DayDetailsCard";
@@ -36,14 +35,23 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
 
   return (
     <div className="max-w-7xl mx-auto pb-16 space-y-8">
-      <DashBanner />
-
-      <div className="flex justify-end">
+      {/* Top Header Bar with Live Clock */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div>
+          <h2 className="text-xl md:text-2xl font-extrabold text-gray-900 tracking-tight">
+            Dashboard
+          </h2>
+          <p className="text-xs md:text-sm text-gray-500">
+            Welcome to CareWallet expense tracking system.
+          </p>
+        </div>
         <ClockCard />
       </div>
 
+      {/* Hero Greeting & Quick Actions */}
       <WelcomeAddBanner fullName={fullName} username={username} />
 
+      {/* Financial Metric Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <DayDetailsCard
           totalTodayExpenses={totalTodayExpenses}
@@ -59,13 +67,16 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
         />
       </div>
 
-      <SearchBoxSection />
+      {/* Analytics Charts */}
       <DashboardAnalytics
         monthAnalytics={monthAnalytics}
         yearAnalytics={yearAnalytics}
         month={month}
         year={year}
       />
+
+      {/* Search & Lookup */}
+      <SearchBoxSection />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/auth";
-import Expense from "@/models/Expense";
+import { expenseRepository } from "@/repositories/expense.repository";
 
 export async function GET(req: NextRequest) {
   try {
@@ -32,17 +32,13 @@ export async function GET(req: NextRequest) {
     const endDate = new Date(formattedDate);
     endDate.setHours(23, 59, 59, 999);
 
-    const expenses = await Expense.find({
-      user: user._id,
-      date: { $gte: startDate, $lte: endDate },
-    }).select("_id title amount category date notes createdAt updatedAt");
+    const result = await expenseRepository.getExpensesByDate(
+      user._id,
+      startDate,
+      endDate
+    );
 
-    const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
-
-    return NextResponse.json({
-      totalExpenses,
-      expenses,
-    });
+    return NextResponse.json(result);
   } catch (err) {
     console.error("Error fetching expenses by date:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

@@ -284,6 +284,80 @@ export class ExpenseRepository {
       expenses,
     };
   }
+
+  async getExpensesByDate(
+    userId: string | mongoose.Types.ObjectId,
+    startDate: Date,
+    endDate: Date
+  ) {
+    await connectDb();
+
+    const query = {
+      user: new mongoose.Types.ObjectId(userId),
+      date: { $gte: startDate, $lte: endDate },
+    };
+
+    const expenses = await Expense.find(query)
+      .select("_id title amount category date notes createdAt updatedAt")
+      .sort({ date: -1, createdAt: -1 })
+      .lean();
+
+    const totalExpenses = Number(
+      expenses.reduce((sum, exp) => sum + (exp.amount || 0), 0).toFixed(2)
+    );
+
+    return {
+      totalExpenses,
+      expenses,
+    };
+  }
+
+  async getExpensesByMonth(
+    userId: string | mongoose.Types.ObjectId,
+    startDate: Date,
+    endDate: Date,
+    page: number = 1,
+    limit: number = 10
+  ) {
+    await connectDb();
+
+    const pageNum = Math.max(1, page);
+    const limitNum = Math.max(1, limit);
+    const skip = (pageNum - 1) * limitNum;
+
+    const baseQuery = {
+      user: new mongoose.Types.ObjectId(userId),
+      date: { $gte: startDate, $lte: endDate },
+    };
+
+    const [totalRecords, totalExpenseAggregation, expenses] = await Promise.all([
+      Expense.countDocuments(baseQuery),
+      Expense.aggregate([
+        { $match: baseQuery },
+        { $group: { _id: null, totalAmount: { $sum: "$amount" } } },
+      ]),
+      Expense.find(baseQuery)
+        .select("_id title amount category date notes createdAt updatedAt")
+        .sort({ date: 1, createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+    ]);
+
+    const totalExpenses = Number(
+      (totalExpenseAggregation[0]?.totalAmount ?? 0).toFixed(2)
+    );
+    const totalPages = Math.max(1, Math.ceil(totalRecords / limitNum));
+
+    return {
+      totalExpenses,
+      totalRecords,
+      totalPages,
+      currentPage: pageNum,
+      limit: limitNum,
+      expenses,
+    };
+  }
 }
 
 export const expenseRepository = new ExpenseRepository();

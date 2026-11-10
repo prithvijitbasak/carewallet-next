@@ -8,12 +8,27 @@ export interface ExpenseValues {
   year?: string | number;
 }
 
-const useTotalExpense = (type: "day" | "month" | "year", values: ExpenseValues = {}) => {
+export interface UseTotalExpenseOptions {
+  enabled?: boolean;
+}
+
+const useTotalExpense = (
+  type: "day" | "month" | "year",
+  values: ExpenseValues = {},
+  options: UseTotalExpenseOptions = { enabled: true }
+) => {
+  const isEnabled = options.enabled !== false;
   const [total, setTotal] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(isEnabled);
 
   useEffect(() => {
+    if (!isEnabled) {
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
     const buildURL = () => {
       if (type === "day" && values.date) {
         return `/api/expenses/get-expenses-by-date?date=${values.date}`;
@@ -30,7 +45,6 @@ const useTotalExpense = (type: "day" | "month" | "year", values: ExpenseValues =
     const fetchTotal = async () => {
       const url = buildURL();
       if (!url) {
-        setError("Missing required parameters.");
         setLoading(false);
         return;
       }
@@ -58,7 +72,7 @@ const useTotalExpense = (type: "day" | "month" | "year", values: ExpenseValues =
     };
 
     fetchTotal();
-  }, [type, JSON.stringify(values)]);
+  }, [type, JSON.stringify(values), isEnabled]);
 
   return { total, loading, error };
 };
