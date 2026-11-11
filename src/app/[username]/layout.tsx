@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
-import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function UserLayout({
@@ -40,27 +39,18 @@ export default function UserLayout({
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-[#f8fafc] text-gray-900">
-      <div className="flex flex-1 bg-[#f8fafc]">
-        <Sidebar
-          isOpen={isSidebarOpen}
-          handleCloseArrowClick={handleCloseArrowClick}
-        />
-        <main
-          className={`${
-            isSidebarOpen ? "ml-[250px]" : "ml-[70px]"
-          } flex-1 p-4 md:p-8 transition-[margin-left] duration-300 min-w-0 bg-[#f8fafc]`}
-        >
-          {children}
-        </main>
-      </div>
-      <div
+    <div className="min-h-screen flex bg-[#f8fafc] text-gray-900">
+      <Sidebar
+        isOpen={isSidebarOpen}
+        handleCloseArrowClick={handleCloseArrowClick}
+      />
+      <main
         className={`${
           isSidebarOpen ? "ml-[250px]" : "ml-[70px]"
-        } transition-[margin-left] duration-300`}
+        } flex-1 p-4 md:p-8 transition-[margin-left] duration-300 min-w-0 bg-[#f8fafc]`}
       >
-        <Footer />
-      </div>
+        {children}
+      </main>
     </div>
   );
 }
