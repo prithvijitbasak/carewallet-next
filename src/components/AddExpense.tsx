@@ -1,3 +1,25 @@
+/**
+ * ============================================================================
+ * `AddExpense` COMPONENT (Dynamic Multi-Row Expense Entry Form)
+ * ============================================================================
+ * 
+ * Beginner's Guide to this Component:
+ * 
+ * 1. Dynamic Form Rows:
+ *    Users can add multiple expenses at once. We store an array of objects in state:
+ *    `inputFields = [{ id, title, amount, category, date, note }]`
+ *    - Clicking "Add More" appends a new blank item to the array.
+ *    - Clicking the Trash icon removes that item by `id`.
+ * 
+ * 2. Controlled Inputs:
+ *    Every input field reflects state (`value={field.title}`) and updates state
+ *    via `handleChange(id, "title", e.target.value)`.
+ * 
+ * 3. Validation & Batch Submission:
+ *    Before submitting to the server, we check that required fields (Title, Amount,
+ *    Category, Date) are non-empty, and send all rows in a single batch POST request.
+ */
+
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -22,6 +44,7 @@ const AddExpense: React.FC<AddExpenseProps> = ({
   initialCategories = [],
   defaultDate = "",
 }) => {
+  // Initialize with one empty expense row
   const [inputFields, setInputFields] = useState<InputFieldItem[]>([
     {
       id: 1,
@@ -38,16 +61,36 @@ const AddExpense: React.FC<AddExpenseProps> = ({
     null
   );
 
+  // If categories weren't passed via SSR props, fetch them from the API
   useEffect(() => {
-    if (defaultDate) {
-      setInputFields((prev) =>
-        prev.map((field) =>
-          field.date ? field : { ...field, date: defaultDate }
-        )
-      );
-    }
-  }, [defaultDate]);
+    if (initialCategories.length > 0) return;
 
+    let isMounted = true;
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("/api/expenses/categories");
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (isMounted && Array.isArray(data.categories)) {
+          setCategories(data.categories);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [initialCategories]);
+
+  /**
+   * Updates an individual field on an expense row by its unique ID
+   */
   const handleChange = (id: number, field: keyof InputFieldItem, value: string) => {
     setInputFields((prevFields) =>
       prevFields.map((item) =>
@@ -56,11 +99,14 @@ const AddExpense: React.FC<AddExpenseProps> = ({
     );
   };
 
+  /**
+   * Appends a new blank expense row
+   */
   const addInputFields = () => {
-    setInputFields([
-      ...inputFields,
+    setInputFields((prev) => [
+      ...prev,
       {
-        id: Date.now(),
+        id: Date.now(), // Generate a unique timestamp ID
         title: "",
         amount: "",
         category: "",
@@ -70,22 +116,34 @@ const AddExpense: React.FC<AddExpenseProps> = ({
     ]);
   };
 
+  /**
+   * Removes an expense row by its unique ID (maintaining at least 1 row)
+   */
   const deleteInputFields = (id: number) => {
     if (inputFields.length > 1) {
-      setInputFields(inputFields.filter((field) => field.id !== id));
+      setInputFields((prev) => prev.filter((field) => field.id !== id));
     } else {
       toast.info("At least one expense row is required");
     }
   };
 
+  /**
+   * Validates all rows and sends batch POST request to /api/expenses
+   */
   const handleSubmit = async () => {
+    // Client-side validation: verify all required fields
     for (const field of inputFields) {
-      if (!field.title || !field.amount || !field.category || !field.date) {
+      if (!field.title.trim() || !field.amount.trim() || !field.category.trim() || !field.date) {
         toast.error("Please fill in all required fields (Title, Amount, Category, Date)!");
+        return;
+      }
+      if (isNaN(parseFloat(field.amount)) || parseFloat(field.amount) < 0) {
+        toast.error("Please enter a valid positive amount!");
         return;
       }
     }
 
+    // Format dates to DD-MM-YYYY expected by CareWallet API
     const expenses = inputFields.map((field) => {
       const [year, month, day] = field.date.split("-");
       const formattedDate = `${day}-${month}-${year}`;
@@ -113,6 +171,7 @@ const AddExpense: React.FC<AddExpenseProps> = ({
 
       if (response.ok && data.success) {
         toast.success("Expenses added successfully!");
+        // Reset form to a single fresh row
         setInputFields([
           {
             id: 1,
@@ -127,8 +186,8 @@ const AddExpense: React.FC<AddExpenseProps> = ({
         toast.error(data.message || "Failed to add expenses");
       }
     } catch (error) {
-      console.error("Error:", error);
-      toast.error("Something went wrong!");
+      console.error("Error submitting expenses:", error);
+      toast.error("Something went wrong while saving expenses!");
     }
   };
 
@@ -136,37 +195,10 @@ const AddExpense: React.FC<AddExpenseProps> = ({
     setOpenCategoryDropdown((prevId) => (prevId === id ? null : id));
   };
 
-  useEffect(() => {
-    if (initialCategories && initialCategories.length > 0) {
-      setCategories(initialCategories);
-      return;
-    }
-
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch("/api/expenses/categories");
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        if (Array.isArray(data.categories)) {
-          setCategories(data.categories);
-        } else {
-          setCategories([]);
-        }
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-        setCategories([]);
-      }
-    };
-
-    fetchCategories();
-  }, [initialCategories]);
-
   return (
     <div className="w-full max-w-6xl mx-auto py-6 px-2 md:px-4">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8">
-        {/* Header */}
+        {/* Header section with Add More button */}
         <div className="flex justify-between items-center pb-6 border-b border-gray-200 mb-6">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Add Expenses</h2>
@@ -184,13 +216,14 @@ const AddExpense: React.FC<AddExpenseProps> = ({
           </button>
         </div>
 
-        {/* Expense Rows */}
+        {/* Dynamic list of expense entry rows */}
         <div className="space-y-4">
-          {inputFields.map((field, idx) => (
+          {inputFields.map((field) => (
             <div
               className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center bg-gray-50/80 p-4 rounded-xl border border-gray-200"
               key={field.id}
             >
+              {/* Title input */}
               <div className="md:col-span-3">
                 <label className="block text-xs font-semibold text-gray-600 mb-1 md:hidden">
                   Title
@@ -207,6 +240,7 @@ const AddExpense: React.FC<AddExpenseProps> = ({
                 />
               </div>
 
+              {/* Amount input */}
               <div className="md:col-span-2">
                 <label className="block text-xs font-semibold text-gray-600 mb-1 md:hidden">
                   Amount
@@ -230,6 +264,7 @@ const AddExpense: React.FC<AddExpenseProps> = ({
                 </div>
               </div>
 
+              {/* Category selector dropdown */}
               <div className="md:col-span-2 relative">
                 <label className="block text-xs font-semibold text-gray-600 mb-1 md:hidden">
                   Category
@@ -273,6 +308,7 @@ const AddExpense: React.FC<AddExpenseProps> = ({
                 )}
               </div>
 
+              {/* Date picker */}
               <div className="md:col-span-2">
                 <label className="block text-xs font-semibold text-gray-600 mb-1 md:hidden">
                   Date
@@ -288,6 +324,7 @@ const AddExpense: React.FC<AddExpenseProps> = ({
                 />
               </div>
 
+              {/* Notes input */}
               <div className="md:col-span-2">
                 <label className="block text-xs font-semibold text-gray-600 mb-1 md:hidden">
                   Notes
@@ -303,12 +340,13 @@ const AddExpense: React.FC<AddExpenseProps> = ({
                 />
               </div>
 
+              {/* Remove row button */}
               <div className="md:col-span-1 flex justify-center pt-2 md:pt-0">
                 <button
                   type="button"
                   className="text-gray-400 hover:text-red-600 cursor-pointer p-2 rounded-lg hover:bg-red-50 transition-colors"
                   onClick={() => deleteInputFields(field.id)}
-                  title="Remove this item"
+                  title="Remove this row"
                 >
                   <FaTrash className="text-base" />
                 </button>
@@ -317,7 +355,7 @@ const AddExpense: React.FC<AddExpenseProps> = ({
           ))}
         </div>
 
-        {/* Submit */}
+        {/* Form Submit Button */}
         <div className="mt-8 flex justify-center">
           <button
             type="button"

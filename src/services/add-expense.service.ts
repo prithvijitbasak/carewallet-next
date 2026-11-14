@@ -1,3 +1,18 @@
+/**
+ * ============================================================================
+ * ADD EXPENSE SERVICE (Pre-populates Defaults & Recent Expenses)
+ * ============================================================================
+ * 
+ * Beginner's Guide:
+ * 
+ * When a user navigates to the "Add Expense" page:
+ * 1. Default Date: We pre-fill today's date in `YYYY-MM-DD` (HTML `<input type="date">` format)
+ *    adjusted to their local timezone so they don't have to manually pick today.
+ * 2. Categories: We provide the pre-configured categories array from constants.
+ * 3. Recent Expenses: We fetch their 5 most recent expenses so the user can quickly
+ *    review what was previously logged without switching pages.
+ */
+
 import { IUser } from "@/models/User";
 import { expenseCategories } from "@/constants/expenseCategories";
 import { expenseRepository } from "@/repositories/expense.repository";
@@ -24,6 +39,9 @@ export interface AddExpenseData {
 }
 
 export class AddExpenseService {
+  /**
+   * Prepares server-side props for the Add Expense page.
+   */
   async getAddExpenseData(user: IUser): Promise<AddExpenseData> {
     const now = new Date();
     let yearNum = now.getFullYear();
@@ -55,6 +73,7 @@ export class AddExpenseService {
       }
     }
 
+    // Format into HTML5 date input format: YYYY-MM-DD
     const yyyy = String(yearNum);
     const mm = String(monthNum + 1).padStart(2, "0");
     const dd = String(dateNum).padStart(2, "0");
@@ -63,8 +82,8 @@ export class AddExpenseService {
     let recentExpenses: RecentExpenseItem[] = [];
     try {
       const rawExpenses = await expenseRepository.getRecentExpenses(user._id, 5);
-      recentExpenses = rawExpenses.map((exp: any) => ({
-        _id: exp._id.toString(),
+      recentExpenses = rawExpenses.map((exp) => ({
+        _id: String(exp._id),
         title: exp.title,
         amount: exp.amount,
         category: exp.category,

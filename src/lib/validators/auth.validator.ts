@@ -1,5 +1,21 @@
+/**
+ * ============================================================================
+ * AUTHENTICATION VALIDATORS (Zod Schemas)
+ * ============================================================================
+ * 
+ * What is this file for?
+ * It defines the data contracts and validation rules for user authentication:
+ * - `loginSchema`: Validates login credentials (username/email/phone + password)
+ * - `signupSchema`: Validates user registration information
+ * - Reusable field schemas: fullName, username, email, phone, password, timezone
+ */
+
 import { z } from "zod";
 
+/**
+ * Schema for user login.
+ * Identifier can be username, email address, or phone number.
+ */
 export const loginSchema = z.object({
   identifier: z
     .string()
@@ -20,6 +36,9 @@ export const loginSchema = z.object({
     ),
 });
 
+/**
+ * Reusable field validators used across signup and profile update
+ */
 export const fullName = z
   .string()
   .trim()
@@ -38,12 +57,12 @@ export const username = z
 export const email = z
   .string()
   .trim()
-  .email({ message: "Invalid email" });
+  .email({ message: "Invalid email address" });
 
 export const phone = z
   .string()
   .trim()
-  .regex(/^\d{10}$/, { message: "Phone number must be 10 digits" });
+  .regex(/^\d{10}$/, { message: "Phone number must be exactly 10 digits" });
 
 export const password = z
   .string()
@@ -63,8 +82,11 @@ export const role = z.string().trim().min(1, { message: "Please enter your role"
 export const timezone = z
   .string()
   .trim()
-  .regex(/^[A-Za-z_]+\/[A-Za-z_]+$/, { message: "Invalid timezone format" });
+  .regex(/^[A-Za-z_]+\/[A-Za-z_]+$/, { message: "Invalid timezone format (e.g., Asia/Kolkata)" });
 
+/**
+ * Schema for new user registration
+ */
 export const signupSchema = z.object({
   fullName,
   username,
@@ -75,5 +97,6 @@ export const signupSchema = z.object({
   timezone,
 });
 
+// Infer TypeScript types from Zod schemas
 export type LoginInput = z.infer<typeof loginSchema>;
 export type SignupInput = z.infer<typeof signupSchema>;

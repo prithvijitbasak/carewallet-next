@@ -1,3 +1,18 @@
+/**
+ * ============================================================================
+ * ANALYTICS PAGE (`/[username]/analytics`)
+ * ============================================================================
+ * 
+ * Beginner's Guide:
+ * 
+ * This Server Component:
+ * 1. Resolves dynamic route params (`await params`).
+ * 2. Fetches analytics aggregates on the server (`ssrFetch<AnalyticsData>`).
+ * 3. Feeds pre-calculated data directly into client visualization charts:
+ *    - `<WeeklyExpenseChart />` (Recharts interactive bar chart for last 7 days)
+ *    - `<DashboardAnalytics />` (Monthly & Yearly category breakdown charts)
+ */
+
 import React from "react";
 import WeeklyExpenseChart from "@/components/analytics/WeeklyExpenseChart";
 import DashboardAnalytics from "@/components/DashboardAnalytics";
@@ -11,9 +26,10 @@ interface AnalyticsPageProps {
 }
 
 export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
-  const resolvedParams = await params;
-  const routeUsername = resolvedParams?.username;
+  // Await dynamic route parameter in Next.js 16
+  await params;
 
+  // Server-side prefetch of analytics datasets
   const data = await ssrFetch<AnalyticsData>("/api/ssr/analytics", {
     requireAuth: true,
   });

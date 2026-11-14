@@ -1,3 +1,23 @@
+/**
+ * ============================================================================
+ * ROOT APPLICATION LAYOUT (`/layout.tsx`)
+ * ============================================================================
+ * 
+ * Beginner's Guide:
+ * 
+ * 1. What is RootLayout?
+ *    In Next.js App Router, `RootLayout` is the top-level parent wrapper around every
+ *    single page in the application. It defines the `<html>` and `<body>` tags.
+ * 
+ * 2. Next.js Font Optimization:
+ *    The `Geist` and `Geist_Mono` fonts are downloaded at build time and self-hosted,
+ *    eliminating layout shifts (CLS) and external Google Font network calls.
+ * 
+ * 3. Global Providers:
+ *    The `<Providers>` component injects React Query Client, Redux Store, and Toastify
+ *    notifications across the entire component tree.
+ */
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";

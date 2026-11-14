@@ -1,3 +1,20 @@
+/**
+ * ============================================================================
+ * USER REGISTRATION API ROUTE (`POST /api/auth/register`)
+ * ============================================================================
+ * 
+ * Beginner's Guide to User Signup:
+ * 
+ * Registration follows a secure 5-step lifecycle:
+ * 1. Zod Validation: Ensures required fields, regex constraints, and formats are met.
+ * 2. Uniqueness Check: Checks MongoDB to ensure username, email, and phone aren't already taken.
+ * 3. Password Hashing: Hashes the plain password with `bcrypt.hash(password, 10)` so passwords
+ *    are never saved in plain-text.
+ * 4. Database Creation: Stores the new user document in MongoDB.
+ * 5. Instant Login: Issues a signed JWT access token in an HttpOnly cookie so the user
+ *    is immediately authenticated without having to log in manually right after sign-up.
+ */
+
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import connectDb from "@/lib/db";
@@ -9,8 +26,9 @@ import { cookieOptions } from "@/lib/auth";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const validation = signupSchema.safeParse(body);
 
+    // Step 1: Validate payload against Zod schema
+    const validation = signupSchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json(
         {
@@ -26,7 +44,7 @@ export async function POST(req: NextRequest) {
 
     await connectDb();
 
-    // 1. Check for existing user
+    // Step 2: Ensure username, email, and phone number are unique
     const userExist = await User.findOne({
       $or: [{ username }, { email }, { phone }],
     });
@@ -52,10 +70,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 2. Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // 3. Check timezone validity
+    // Step 3: Validate timezone string
     const valid = await isValidTimezone(timezone);
     if (!valid) {
       return NextResponse.json(
@@ -64,7 +79,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 4. Create user
+    // Step 4: Hash password with bcrypt (10 salt rounds)
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Step 5: Save new User record into MongoDB
     const userCreated = await User.create({
       fullName,
       username,
@@ -75,7 +93,7 @@ export async function POST(req: NextRequest) {
       timezone,
     });
 
-    // 5. Generate token (valid for 30 days)
+    // Step 6: Generate JWT access token
     const accessToken = userCreated.generateAccessToken();
 
     const response = NextResponse.json(
@@ -87,7 +105,7 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
 
-    // Set cookie
+    // Set secure HttpOnly cookie so the user is logged in
     response.cookies.set(
       cookieOptions.accessToken.name,
       accessToken,
@@ -95,8 +113,8 @@ export async function POST(req: NextRequest) {
     );
 
     return response;
-  } catch (error: any) {
-    console.error("Error in register:", error);
+  } catch (error: unknown) {
+    console.error("Error in registration:", error);
     return NextResponse.json(
       { message: "Server error, please try again later." },
       { status: 500 }

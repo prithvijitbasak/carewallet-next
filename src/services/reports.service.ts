@@ -1,5 +1,21 @@
+/**
+ * ============================================================================
+ * REPORTS SERVICE (Custom Date Range Statement & PDF Export Data)
+ * ============================================================================
+ * 
+ * Beginner's Guide:
+ * 
+ * What does this service do?
+ * Powers the "Reports" feature where users can:
+ * 1. Filter expenses between ANY arbitrary start date and end date (e.g. 01-01-2026 to 13-11-2026).
+ * 2. Calculate the exact grand total spent across the selected period.
+ * 3. Paginate through records (10 per page by default).
+ * 4. Generate downloadable PDF financial statements via `@react-pdf/renderer`.
+ */
+
 import { IUser } from "@/models/User";
 import { expenseRepository } from "@/repositories/expense.repository";
+import { ExpenseRecord } from "./day-details.service";
 
 export interface ReportPagination {
   totalRecords: number;
@@ -19,7 +35,7 @@ export interface ReportsData {
   endDate: string;
   totalAmount: string;
   pagination: ReportPagination;
-  expenses: any[];
+  expenses: ExpenseRecord[];
 }
 
 export interface ReportsQueryOptions {
@@ -30,6 +46,9 @@ export interface ReportsQueryOptions {
 }
 
 export class ReportsService {
+  /**
+   * Generates date-range filtered report data with pagination and total spending.
+   */
   async getReportsData(
     user: IUser,
     options: ReportsQueryOptions = {}
@@ -39,6 +58,7 @@ export class ReportsService {
     let monthNum = now.getMonth();
     let dateNum = now.getDate();
 
+    // Align with user's local timezone
     if (user.timezone) {
       try {
         const formatter = new Intl.DateTimeFormat("en-US", {
@@ -64,6 +84,7 @@ export class ReportsService {
       }
     }
 
+    // Default range is from January 1st of current year to today
     const defaultStartDate = `01-01-${yearNum}`;
     const defaultEndDate = `${String(dateNum).padStart(2, "0")}-${String(
       monthNum + 1
@@ -74,6 +95,7 @@ export class ReportsService {
     const pageNum = parseInt(options.pageParam || "1", 10) || 1;
     const limitNum = parseInt(options.limitParam || "10", 10) || 10;
 
+    // Convert DD-MM-YYYY to YYYY-MM-DD for JavaScript Date constructor
     const startDateParts = startDateStr.split("-");
     const endDateParts = endDateStr.split("-");
 
@@ -105,7 +127,7 @@ export class ReportsService {
       endDate: endDateStr,
       totalAmount: report.totalAmount,
       pagination: report.pagination,
-      expenses: report.expenses,
+      expenses: report.expenses as unknown as ExpenseRecord[],
     };
   }
 
