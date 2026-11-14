@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -13,6 +13,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import LogoutModal from "@/components/LogoutModal";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -20,7 +21,8 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, handleCloseArrowClick }) => {
-  const { user, loading, logout } = useAuth();
+  const { user, loading } = useAuth();
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const pathname = usePathname();
 
   if (loading) {
@@ -86,12 +88,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, handleCloseArrowClick }) => {
     .toUpperCase();
 
   return (
-    <aside
-      className={`fixed left-0 top-0 h-full ${
-        isOpen ? "w-[250px]" : "w-[70px]"
-      } bg-white border-r border-gray-200/80 z-40 flex flex-col justify-between transition-all duration-300 ease-in-out shadow-[1px_0_12px_rgba(0,0,0,0.03)] select-none`}
-    >
-      {/* Brand Header */}
+    <>
+      <aside
+        className={`fixed left-0 top-0 h-full ${
+          isOpen ? "w-[250px]" : "w-[70px]"
+        } bg-white border-r border-gray-200/80 z-40 flex flex-col justify-between transition-all duration-300 ease-in-out shadow-[1px_0_12px_rgba(0,0,0,0.03)] select-none`}
+      >
+        {/* Brand Header */}
       <div>
         <div
           className={`h-20 px-3 flex items-center border-b border-gray-100/90 relative ${
@@ -230,7 +233,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, handleCloseArrowClick }) => {
 
         {/* Logout Button */}
         <button
-          onClick={logout}
+          onClick={() => setIsLogoutModalOpen(true)}
           title="Logout"
           className={`w-full group flex items-center gap-3 px-3 py-2 rounded-xl text-gray-500 hover:text-red-600 hover:bg-red-50/80 transition-all duration-200 cursor-pointer text-xs font-medium ${
             !isOpen ? "justify-center px-0" : "justify-start"
@@ -241,7 +244,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, handleCloseArrowClick }) => {
         </button>
       </div>
     </aside>
-  );
+
+    {/* Logout Confirmation Modal */}
+    <LogoutModal
+      isOpen={isLogoutModalOpen}
+      onClose={() => setIsLogoutModalOpen(false)}
+    />
+  </>
+);
 };
 
 export default Sidebar;
