@@ -1,3 +1,5 @@
+// Service managing profile data formatting, image base64 conversion, and updates
+
 import { IUser } from "@/models/User";
 
 export interface ProfileUserData {
@@ -21,28 +23,26 @@ export interface ProfileData {
 }
 
 export class ProfileService {
+  // Sanitizes user document and converts binary profile picture to base64
   async getProfileData(user: IUser): Promise<ProfileData> {
-    const userObj: any = user.toObject ? user.toObject() : { ...user };
-    delete userObj.password;
-    delete userObj._id;
-    delete userObj.__v;
+    const rawUser = user.toObject ? user.toObject() : { ...user };
 
     let image = null;
-    if (userObj.image && userObj.image.data) {
-      if (Buffer.isBuffer(userObj.image.data)) {
+    if (rawUser.image && rawUser.image.data) {
+      if (Buffer.isBuffer(rawUser.image.data)) {
         image = {
-          data: userObj.image.data.toString("base64"),
-          contentType: userObj.image.contentType,
+          data: rawUser.image.data.toString("base64"),
+          contentType: rawUser.image.contentType,
         };
-      } else if (userObj.image.data.data) {
+      } else if (rawUser.image.data.data) {
         image = {
-          data: Buffer.from(userObj.image.data.data).toString("base64"),
-          contentType: userObj.image.contentType,
+          data: Buffer.from(rawUser.image.data.data).toString("base64"),
+          contentType: rawUser.image.contentType,
         };
-      } else if (typeof userObj.image.data === "string") {
+      } else if (typeof rawUser.image.data === "string") {
         image = {
-          data: userObj.image.data,
-          contentType: userObj.image.contentType,
+          data: rawUser.image.data,
+          contentType: rawUser.image.contentType,
         };
       }
     }
@@ -57,12 +57,8 @@ export class ProfileService {
         role: user.role || "Normal user",
         timezone: user.timezone || "UTC",
         image,
-        createdAt: user.createdAt
-          ? new Date(user.createdAt).toISOString()
-          : undefined,
-        updatedAt: user.updatedAt
-          ? new Date(user.updatedAt).toISOString()
-          : undefined,
+        createdAt: user.createdAt ? new Date(user.createdAt).toISOString() : undefined,
+        updatedAt: user.updatedAt ? new Date(user.updatedAt).toISOString() : undefined,
       },
     };
   }

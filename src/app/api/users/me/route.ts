@@ -1,3 +1,5 @@
+// Fetches the authenticated user profile with base64 image serialization
+
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/auth";
 
@@ -9,18 +11,34 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ message: error || "User not found" }, { status });
     }
 
-    const userProfile: any = user.toObject();
-    delete userProfile._id;
-    delete userProfile.password;
-
-    if (userProfile.image && userProfile.image.data) {
-      // If it's a Buffer, serialize to base64
-      if (Buffer.isBuffer(userProfile.image.data)) {
-        userProfile.image.data = userProfile.image.data.toString("base64");
-      } else if (userProfile.image.data.data) {
-        userProfile.image.data = Buffer.from(userProfile.image.data.data).toString("base64");
+    const rawUser = user.toObject();
+    
+    // Construct sanitized profile response
+    let base64ImageData: string | null = null;
+    if (rawUser.image && rawUser.image.data) {
+      if (Buffer.isBuffer(rawUser.image.data)) {
+        base64ImageData = rawUser.image.data.toString("base64");
+      } else if (rawUser.image.data.data) {
+        base64ImageData = Buffer.from(rawUser.image.data.data).toString("base64");
       }
     }
+
+    const userProfile = {
+      fullName: rawUser.fullName,
+      username: rawUser.username,
+      email: rawUser.email,
+      phone: rawUser.phone,
+      role: rawUser.role,
+      timezone: rawUser.timezone,
+      createdAt: rawUser.createdAt,
+      updatedAt: rawUser.updatedAt,
+      image: base64ImageData
+        ? {
+            data: base64ImageData,
+            contentType: rawUser.image?.contentType || "image/png",
+          }
+        : null,
+    };
 
     return NextResponse.json(userProfile, { status: 200 });
   } catch (error) {

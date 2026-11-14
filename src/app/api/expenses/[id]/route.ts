@@ -1,3 +1,5 @@
+// Deletes a user-owned expense by ID with IDOR protection
+
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { getAuthenticatedUser } from "@/lib/auth";
@@ -8,18 +10,22 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Step 1: Authenticate the user
     const { user, error, status } = await getAuthenticatedUser(req);
 
     if (error || !user) {
       return NextResponse.json({ message: error || "Unauthorized" }, { status });
     }
 
+    // Step 2: Extract dynamic route ID
     const { id } = await params;
 
+    // Step 3: Validate MongoDB ObjectId format
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
+      return NextResponse.json({ message: "Invalid expense ID format" }, { status: 400 });
     }
 
+    // Step 4: Verify that the expense belongs to the logged-in user
     const existingExpense = await Expense.findOne({ _id: id, user: user._id });
 
     if (!existingExpense) {
@@ -32,17 +38,19 @@ export async function DELETE(
       );
     }
 
+    // Step 5: Delete document
     await existingExpense.deleteOne();
 
     return NextResponse.json(
       { message: "Expense deleted successfully!" },
       { status: 200 }
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Deletion error";
     return NextResponse.json(
       {
         message: "Failed to delete expense",
-        error: err.message,
+        error: message,
       },
       { status: 500 }
     );

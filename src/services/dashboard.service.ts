@@ -1,3 +1,5 @@
+// Service calculating timezone-aware date boundaries and dashboard summaries
+
 import { IUser } from "@/models/User";
 import {
   expenseRepository,
@@ -24,12 +26,14 @@ export interface DashboardData extends DashboardExpenseSummary {
 }
 
 export class DashboardService {
+  // Computes today, month, and year boundaries and fetches dashboard metrics
   async getDashboardData(user: IUser): Promise<DashboardData> {
     const now = new Date();
     let yearNum = now.getFullYear();
     let monthNum = now.getMonth(); // 0 to 11
     let dateNum = now.getDate();
 
+    // Adjust calculation boundaries to the user's timezone if present
     if (user.timezone) {
       try {
         const formatter = new Intl.DateTimeFormat("en-US", {
@@ -47,14 +51,15 @@ export class DashboardService {
         }
         if (partMap.year && partMap.month && partMap.day) {
           yearNum = partMap.year;
-          monthNum = partMap.month - 1;
+          monthNum = partMap.month - 1; // Convert 1-based month to 0-based
           dateNum = partMap.day;
         }
       } catch {
-        // Fallback to server's current date
+        // Fallback to server's current date if timezone conversion fails
       }
     }
 
+    // Define boundary timestamps for Today, This Month, and This Year
     const startOfToday = new Date(yearNum, monthNum, dateNum, 0, 0, 0, 0);
     const endOfToday = new Date(yearNum, monthNum, dateNum, 23, 59, 59, 999);
 
@@ -67,6 +72,7 @@ export class DashboardService {
     const startOfNextMonth = new Date(yearNum, monthNum + 1, 1, 0, 0, 0, 0);
     const startOfNextYear = new Date(yearNum + 1, 0, 1, 0, 0, 0, 0);
 
+    // Run database queries concurrently using Promise.all for optimal speed
     const [summary, monthAnalytics, yearAnalytics] = await Promise.all([
       expenseRepository.getDashboardSummary(user._id, {
         startOfToday,
@@ -109,6 +115,7 @@ export class DashboardService {
     };
   }
 
+  // Returns empty dashboard summary fallback with zero totals
   getEmptyDashboardData(): DashboardData {
     const emptyCategories = expenseCategories.map((cat) => ({
       category: cat,
@@ -134,4 +141,5 @@ export class DashboardService {
   }
 }
 
+// Singleton service instance
 export const dashboardService = new DashboardService();

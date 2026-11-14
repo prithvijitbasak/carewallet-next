@@ -1,3 +1,5 @@
+// Utility for merging conditional Tailwind CSS classes using clsx and twMerge
+
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 

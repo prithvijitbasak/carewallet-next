@@ -1,7 +1,10 @@
+// Service aggregating weekly, monthly, and yearly expense metrics for charts
+
 import { IUser } from "@/models/User";
 import {
   expenseRepository,
   ExpenseCategoryBreakdown,
+  DailyCategoryExpense,
 } from "@/repositories/expense.repository";
 import { expenseCategories } from "@/constants/expenseCategories";
 
@@ -11,7 +14,7 @@ export interface AnalyticsData {
     fullName: string;
     username: string;
   } | null;
-  weeklyAnalytics: any[];
+  weeklyAnalytics: DailyCategoryExpense[];
   monthAnalytics: ExpenseCategoryBreakdown[];
   yearAnalytics: ExpenseCategoryBreakdown[];
   month: number;
@@ -19,19 +22,19 @@ export interface AnalyticsData {
 }
 
 export class AnalyticsService {
+  // Fetches weekly, monthly, and yearly aggregated spending data for Analytics view
   async getAnalyticsData(user: IUser): Promise<AnalyticsData> {
     const now = new Date();
     let yearNum = now.getFullYear();
     let monthNum = now.getMonth(); // 0 to 11
-    let dateNum = now.getDate();
 
+    // Convert date boundaries according to user's timezone if available
     if (user.timezone) {
       try {
         const formatter = new Intl.DateTimeFormat("en-US", {
           timeZone: user.timezone,
           year: "numeric",
           month: "numeric",
-          day: "numeric",
         });
         const parts = formatter.formatToParts(now);
         const partMap: Record<string, number> = {};
@@ -40,10 +43,9 @@ export class AnalyticsService {
             partMap[p.type] = parseInt(p.value, 10);
           }
         }
-        if (partMap.year && partMap.month && partMap.day) {
+        if (partMap.year && partMap.month) {
           yearNum = partMap.year;
           monthNum = partMap.month - 1;
-          dateNum = partMap.day;
         }
       } catch {
         // Fallback to server date
@@ -56,6 +58,7 @@ export class AnalyticsService {
     const startOfYear = new Date(yearNum, 0, 1, 0, 0, 0, 0);
     const startOfNextYear = new Date(yearNum + 1, 0, 1, 0, 0, 0, 0);
 
+    // Fetch weekly, monthly, and yearly analytics concurrently
     const [weeklyAnalytics, monthAnalytics, yearAnalytics] = await Promise.all([
       expenseRepository.getLast7DaysAnalytics(user._id, user.timezone),
       expenseRepository.getCategoryAnalytics(
@@ -84,6 +87,7 @@ export class AnalyticsService {
     };
   }
 
+  // Returns empty analytics fallback data with 0 amounts for all categories
   getEmptyAnalyticsData(): AnalyticsData {
     const emptyCategories = expenseCategories.map((cat) => ({
       category: cat,

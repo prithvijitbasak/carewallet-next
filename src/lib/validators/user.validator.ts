@@ -1,3 +1,5 @@
+// Zod validation schema for optional user profile updates
+
 import { z } from "zod";
 import { fullName, username, email, phone } from "./auth.validator";
 

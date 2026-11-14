@@ -1,6 +1,19 @@
+// Service loading daily expenses and previous/next day navigation dates
+
 import { IUser } from "@/models/User";
 import { expenseRepository } from "@/repositories/expense.repository";
 import { formatDtConven } from "@/utils/formatterFunctions";
+
+export interface ExpenseRecord {
+  _id: unknown;
+  title: string;
+  amount: number;
+  category: string;
+  date: Date;
+  notes?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
 export interface DayDetailsData {
   isLogin: boolean;
@@ -13,7 +26,7 @@ export interface DayDetailsData {
   previousDate: string;
   nextDate: string;
   totalExpenses: number;
-  expenses: any[];
+  expenses: ExpenseRecord[];
 }
 
 export interface DayDetailsQueryOptions {
@@ -21,6 +34,7 @@ export interface DayDetailsQueryOptions {
 }
 
 export class DayDetailsService {
+  // Loads all expenses for a specific date alongside navigation dates
   async getDayDetailsData(
     user: IUser,
     options: DayDetailsQueryOptions = {}
@@ -30,6 +44,7 @@ export class DayDetailsService {
     let monthNum = now.getMonth(); // 0 to 11
     let dateNum = now.getDate();
 
+    // Adjust for user's timezone if configured
     if (user.timezone) {
       try {
         const formatter = new Intl.DateTimeFormat("en-US", {
@@ -51,15 +66,17 @@ export class DayDetailsService {
           dateNum = partMap.day;
         }
       } catch {
-        // Fallback
+        // Fallback to server date
       }
     }
 
+    // Default to today if no date parameter was specified in query
     const defaultDate = `${String(dateNum).padStart(2, "0")}-${String(
       monthNum + 1
     ).padStart(2, "0")}-${yearNum}`;
     const dateStr = options.dateParam || defaultDate;
 
+    // Convert DD-MM-YYYY string into Date boundaries (00:00:00.000 to 23:59:59.999)
     const dateParts = dateStr.split("-");
     const formattedDateForDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
     const startDate = new Date(formattedDateForDate);
@@ -67,6 +84,7 @@ export class DayDetailsService {
     const endDate = new Date(formattedDateForDate);
     endDate.setHours(23, 59, 59, 999);
 
+    // Compute previous day and next day for UI arrow navigation
     const currentDate = new Date(
       Number(dateParts[2]),
       Number(dateParts[1]) - 1,
@@ -102,7 +120,7 @@ export class DayDetailsService {
       previousDate,
       nextDate,
       totalExpenses: result.totalExpenses,
-      expenses: result.expenses,
+      expenses: result.expenses as unknown as ExpenseRecord[],
     };
   }
 

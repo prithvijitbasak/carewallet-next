@@ -1,3 +1,5 @@
+// Main dashboard page displaying financial metric cards, recent transactions, and analytics
+
 import React from "react";
 import ClockCard from "@/components/ClockCard";
 import WelcomeAddBanner from "@/components/WelcomeAddBanner";
@@ -7,6 +9,7 @@ import YearDetailsCard from "@/components/YearDetailsCard";
 import SearchBoxSection from "@/components/SearchBoxSection";
 import DashboardAnalytics from "@/components/DashboardAnalytics";
 import { ssrFetch } from "@/lib/authFetch";
+import { DashboardData } from "@/services/dashboard.service";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +21,8 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   const resolvedParams = await params;
   const routeUsername = resolvedParams?.username;
 
-  const data = await ssrFetch("/api/ssr/dashboard", { requireAuth: true });
+  // Server-side fetch of dashboard data typed strictly with DashboardData
+  const data = await ssrFetch<DashboardData>("/api/ssr/dashboard", { requireAuth: true });
 
   const fullName = data?.fullName || data?.user?.fullName || "";
   const username = data?.username || data?.user?.username || routeUsername;
@@ -51,7 +55,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
       {/* Hero Greeting & Quick Actions */}
       <WelcomeAddBanner fullName={fullName} username={username} />
 
-      {/* Financial Metric Cards */}
+      {/* Financial Metric Cards (Today, Month, Year) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <DayDetailsCard
           totalTodayExpenses={totalTodayExpenses}
@@ -67,16 +71,16 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
         />
       </div>
 
-      {/* Analytics Charts */}
+      {/* Expense Search and Filter Section */}
+      <SearchBoxSection />
+
+      {/* Expense Visual Analytics Section (Bar & Pie Charts) */}
       <DashboardAnalytics
         monthAnalytics={monthAnalytics}
         yearAnalytics={yearAnalytics}
         month={month}
         year={year}
       />
-
-      {/* Search & Lookup */}
-      <SearchBoxSection />
     </div>
   );
 }

@@ -1,3 +1,5 @@
+// Data access layer for Expense collection using MongoDB aggregation pipelines
+
 import mongoose from "mongoose";
 import connectDb from "@/lib/db";
 import Expense from "@/models/Expense";
@@ -23,7 +25,14 @@ export interface DateRanges {
   endOfYear: Date;
 }
 
+export interface DailyCategoryExpense {
+  date: string;
+  day: string;
+  [category: string]: string | number;
+}
+
 export class ExpenseRepository {
+  // Aggregates today, month, and year totals in a single database query
   async getDashboardSummary(
     userId: string | mongoose.Types.ObjectId,
     dateRanges: DateRanges
@@ -40,12 +49,14 @@ export class ExpenseRepository {
     } = dateRanges;
 
     const aggregation = await Expense.aggregate([
+      // Step 1: Match expenses for this user within the current calendar year
       {
         $match: {
           user: new mongoose.Types.ObjectId(userId),
           date: { $gte: startOfYear, $lte: endOfYear },
         },
       },
+      // Step 2: Sum amounts conditionally into today, month, and year totals
       {
         $group: {
           _id: null,
@@ -99,6 +110,7 @@ export class ExpenseRepository {
     };
   }
 
+  // Aggregates total expense amounts per category within a date range
   async getCategoryAnalytics(
     userId: string | mongoose.Types.ObjectId,
     startDate: Date,
@@ -131,6 +143,7 @@ export class ExpenseRepository {
       },
     ]);
 
+    // Ensure every category exists in the response array even if spent amount is 0
     return expenseCategories.map((cat) => {
       const found = aggregation.find((a) => a.category === cat);
       return {
@@ -140,6 +153,7 @@ export class ExpenseRepository {
     });
   }
 
+  // Retrieves most recent lean expense records for a user
   async getRecentExpenses(
     userId: string | mongoose.Types.ObjectId,
     limit: number = 5
@@ -152,10 +166,11 @@ export class ExpenseRepository {
       .lean();
   }
 
+  // Calculates category spending breakdown for the last 7 calendar days
   async getLast7DaysAnalytics(
     userId: string | mongoose.Types.ObjectId,
     timezone?: string
-  ): Promise<any[]> {
+  ): Promise<DailyCategoryExpense[]> {
     await connectDb();
 
     const today = new Date();
@@ -199,7 +214,7 @@ export class ExpenseRepository {
       resultMap[dateStr][category] = item.totalAmount;
     });
 
-    const finalData: any[] = [];
+    const finalData: DailyCategoryExpense[] = [];
     const categories = expenseCategories;
 
     for (let i = 6; i >= 0; i--) {
@@ -221,7 +236,7 @@ export class ExpenseRepository {
         dayName = d.toLocaleDateString("en-US", { weekday: "short" });
       }
 
-      const dayEntry: Record<string, any> = {
+      const dayEntry: DailyCategoryExpense = {
         date: dateKey,
         day: dayName,
       };
@@ -236,6 +251,7 @@ export class ExpenseRepository {
     return finalData;
   }
 
+  // Generates paginated report of expenses between two dates with grand total
   async getDateRangeReport(
     userId: string | mongoose.Types.ObjectId,
     startDate: Date,
@@ -251,6 +267,7 @@ export class ExpenseRepository {
       date: { $gte: startDate, $lte: endDate },
     };
 
+    // Run count/sum aggregation and document retrieval in parallel for speed
     const [totalStats, expenses] = await Promise.all([
       Expense.aggregate([
         { $match: matchQuery },
@@ -285,6 +302,7 @@ export class ExpenseRepository {
     };
   }
 
+  // Retrieves all expenses and total sum for a single day
   async getExpensesByDate(
     userId: string | mongoose.Types.ObjectId,
     startDate: Date,
@@ -312,6 +330,7 @@ export class ExpenseRepository {
     };
   }
 
+  // Retrieves paginated expenses for an entire month with total month sum
   async getExpensesByMonth(
     userId: string | mongoose.Types.ObjectId,
     startDate: Date,
@@ -360,4 +379,5 @@ export class ExpenseRepository {
   }
 }
 
+// Singleton repository instance
 export const expenseRepository = new ExpenseRepository();

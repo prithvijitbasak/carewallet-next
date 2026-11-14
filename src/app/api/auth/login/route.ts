@@ -1,3 +1,5 @@
+// Handles user login, password verification, and JWT session cookie issuance
+
 import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";
 import User from "@/models/User";
@@ -7,8 +9,9 @@ import { cookieOptions } from "@/lib/auth";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const validation = loginSchema.safeParse(body);
 
+    // Step 1: Validate request body against Zod loginSchema
+    const validation = loginSchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json(
         {
@@ -23,6 +26,7 @@ export async function POST(req: NextRequest) {
 
     await connectDb();
 
+    // Step 2: Search for user by username, email, or phone
     const userExist = await User.findOne({
       $or: [
         { username: identifier },
@@ -38,6 +42,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Step 3: Compare candidate password with the stored bcrypt hash
     const isPasswordMatch = await userExist.comparePassword(password);
     if (!isPasswordMatch) {
       return NextResponse.json(
@@ -46,6 +51,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Step 4: Generate a 30-day JWT access token
     const accessToken = userExist.generateAccessToken();
 
     const response = NextResponse.json(
@@ -57,6 +63,7 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
 
+    // Step 5: Save token in HttpOnly cookie
     response.cookies.set(
       cookieOptions.accessToken.name,
       accessToken,

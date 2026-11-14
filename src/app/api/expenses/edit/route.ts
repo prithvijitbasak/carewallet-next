@@ -1,3 +1,5 @@
+// Updates an existing expense record after validating input and ownership
+
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/auth";
 import Expense from "@/models/Expense";
@@ -5,6 +7,7 @@ import { validateExpense } from "@/lib/validators/expense.validator";
 
 export async function PATCH(req: NextRequest) {
   try {
+    // Step 1: Authenticate the user
     const { user, error, status } = await getAuthenticatedUser(req);
 
     if (error || !user) {
@@ -24,6 +27,7 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
+    // Step 2: Validate updated expense data against Zod schema
     const validationResult = validateExpense(expenseData);
     if (!validationResult.success) {
       return NextResponse.json(
@@ -36,6 +40,7 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
+    // Step 3: Verify the expense belongs to the logged-in user
     const existingExpense = await Expense.findOne({ _id, user: user._id });
     if (!existingExpense) {
       return NextResponse.json(
@@ -51,12 +56,13 @@ export async function PATCH(req: NextRequest) {
       title: validationResult.data.title,
       amount: validationResult.data.amount,
       category: validationResult.data.category,
-      date: new Date(validationResult.data.date as any),
+      date: new Date(validationResult.data.date),
       notes: validationResult.data.notes || "",
     };
 
+    // Step 4: Apply update in MongoDB
     const updatedExpense = await Expense.findByIdAndUpdate(_id, updatedData, {
-      new: true,
+      new: true, // Returns the modified document rather than original
       runValidators: true,
     });
 
@@ -68,13 +74,14 @@ export async function PATCH(req: NextRequest) {
       },
       { status: 200 }
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Error editing expense";
     console.error("Error editing expense:", err);
     return NextResponse.json(
       {
         success: false,
         message: "Internal Server Error",
-        error: err.message,
+        error: message,
       },
       { status: 500 }
     );

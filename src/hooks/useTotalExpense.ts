@@ -1,3 +1,5 @@
+// Custom hook for fetching total expenses across day, month, or year timeframes
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -22,22 +24,26 @@ const useTotalExpense = (
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(isEnabled);
 
+  const { date, month, year } = values;
+
   useEffect(() => {
+    // If the hook is disabled (e.g. modal is closed or inputs are missing), don't fetch
     if (!isEnabled) {
       setLoading(false);
       setError(null);
       return;
     }
 
+    // Build the corresponding API endpoint according to the requested timeframe
     const buildURL = () => {
-      if (type === "day" && values.date) {
-        return `/api/expenses/get-expenses-by-date?date=${values.date}`;
+      if (type === "day" && date) {
+        return `/api/expenses/get-expenses-by-date?date=${encodeURIComponent(date)}`;
       }
-      if (type === "month" && values.month && values.year) {
-        return `/api/expenses/get-expenses-by-month?month=${values.month}&year=${values.year}`;
+      if (type === "month" && month && year) {
+        return `/api/expenses/get-expenses-by-month?month=${encodeURIComponent(month)}&year=${encodeURIComponent(year.toString())}`;
       }
-      if (type === "year" && values.year) {
-        return `/api/expenses/get-expenses-by-year?year=${values.year}`;
+      if (type === "year" && year) {
+        return `/api/expenses/get-expenses-by-year?year=${encodeURIComponent(year.toString())}`;
       }
       return null;
     };
@@ -53,7 +59,7 @@ const useTotalExpense = (
         setLoading(true);
         const res = await fetch(url, {
           method: "GET",
-          credentials: "include",
+          credentials: "include", // Attach cookies for session verification
         });
 
         if (!res.ok) {
@@ -63,8 +69,9 @@ const useTotalExpense = (
         const data = await res.json();
         setTotal(data.totalExpenses || 0);
         setError(null);
-      } catch (err: any) {
-        setError(err.message || "Failed to fetch total expense");
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Failed to fetch total expense";
+        setError(message);
         setTotal(0);
       } finally {
         setLoading(false);
@@ -72,7 +79,7 @@ const useTotalExpense = (
     };
 
     fetchTotal();
-  }, [type, JSON.stringify(values), isEnabled]);
+  }, [type, date, month, year, isEnabled]);
 
   return { total, loading, error };
 };

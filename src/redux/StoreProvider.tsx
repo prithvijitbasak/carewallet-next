@@ -1,3 +1,5 @@
+// Client component wrapper providing the Redux store to the component tree
+
 "use client";
 
 import { useState } from "react";
@@ -9,6 +11,7 @@ export default function StoreProvider({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Lazy initialization ensures makeStore is executed only on initial mount
   const [store] = useState<AppStore>(() => makeStore());
 
   return <Provider store={store}>{children}</Provider>;

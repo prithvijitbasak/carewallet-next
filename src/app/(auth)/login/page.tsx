@@ -1,3 +1,5 @@
+// Login page with controlled form state, animations, and session synchronization
+
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -18,12 +20,14 @@ export default function LoginPage() {
   const [viewPassword, setViewPassword] = useState(false);
   const router = useRouter();
 
+  // If already logged in, redirect directly to dashboard
   useEffect(() => {
     if (isLogin && user?.username) {
       router.push(`/${user.username}`);
     }
   }, [isLogin, user, router]);
 
+  // Unified input change handler using computed property names
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoggedInUser({
       ...loggedInUser,
@@ -39,7 +43,7 @@ export default function LoginPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
+        credentials: "include", // Ensures HttpOnly cookies are received and saved
         body: JSON.stringify(loggedInUser),
       });
 
@@ -74,6 +78,7 @@ export default function LoginPage() {
         </div>
 
         <form className="space-y-6" onSubmit={handleSubmit}>
+          {/* Identifier: Username, Email, or Phone */}
           <motion.div whileTap={{ scale: 0.995 }}>
             <input
               type="text"
@@ -86,6 +91,7 @@ export default function LoginPage() {
             />
           </motion.div>
 
+          {/* Password with Show/Hide Toggle */}
           <div className="relative">
             <input
               type={viewPassword ? "text" : "password"}
@@ -99,11 +105,13 @@ export default function LoginPage() {
             <span
               className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60 hover:text-white cursor-pointer"
               onClick={() => setViewPassword(!viewPassword)}
+              title={viewPassword ? "Hide password" : "Show password"}
             >
               {viewPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
             </span>
           </div>
 
+          {/* Submit Button */}
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -113,6 +121,7 @@ export default function LoginPage() {
             Login
           </motion.button>
 
+          {/* Link to Registration */}
           <div className="text-center pt-4 border-t border-white/10 mt-4">
             <p className="text-sm text-white/70">
               Don&apos;t have an account?{" "}

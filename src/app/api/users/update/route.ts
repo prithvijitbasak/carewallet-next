@@ -1,3 +1,5 @@
+// Updates user profile details with uniqueness conflict checks
+
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/auth";
 import User from "@/models/User";
@@ -5,12 +7,14 @@ import { updateUserSchema } from "@/lib/validators/user.validator";
 
 export async function PUT(req: NextRequest) {
   try {
+    // Step 1: Verify authenticated user session
     const { user, error, status } = await getAuthenticatedUser(req);
 
     if (error || !user) {
       return NextResponse.json({ message: error || "User not found" }, { status });
     }
 
+    // Step 2: Validate input fields
     const body = await req.json();
     const validation = updateUserSchema.safeParse(body);
 
@@ -31,6 +35,7 @@ export async function PUT(req: NextRequest) {
 
     const userId = user._id;
 
+    // Step 3: Check that new username/email/phone isn't already taken by another account
     if (username) {
       const existingUsername = await User.findOne({
         username,
@@ -38,7 +43,7 @@ export async function PUT(req: NextRequest) {
       });
       if (existingUsername) {
         return NextResponse.json(
-          { message: "Username already taken" },
+          { message: "Username already taken by another user" },
           { status: 400 }
         );
       }
@@ -51,7 +56,7 @@ export async function PUT(req: NextRequest) {
       });
       if (existingEmail) {
         return NextResponse.json(
-          { message: "Email already registered" },
+          { message: "Email already registered to another user" },
           { status: 400 }
         );
       }
@@ -64,12 +69,13 @@ export async function PUT(req: NextRequest) {
       });
       if (existingPhone) {
         return NextResponse.json(
-          { message: "Phone number already registered" },
+          { message: "Phone number already registered to another user" },
           { status: 400 }
         );
       }
     }
 
+    // Step 4: Update document in MongoDB and return updated record
     const updatedUser = await User.findByIdAndUpdate(userId, updates, {
       new: true,
       runValidators: true,
@@ -86,11 +92,12 @@ export async function PUT(req: NextRequest) {
       },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Error updating user";
     return NextResponse.json(
       {
         message: "Server error while updating user",
-        error: error.message,
+        error: message,
       },
       { status: 500 }
     );

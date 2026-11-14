@@ -1,17 +1,21 @@
-import { NextRequest, NextResponse } from "next/server";
+// Handles user logout by invalidating the HTTP-only session cookie
 
-export async function POST(req: NextRequest) {
+import { NextResponse } from "next/server";
+
+export async function POST() {
   try {
     const response = NextResponse.json(
       { message: "Logged out successfully" },
       { status: 200 }
     );
 
+    // Invalidate the auth cookie by setting maxAge to 0 seconds
     response.cookies.set("accessToken", "", {
       maxAge: 0,
       path: "/",
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
     });
 
     return response;

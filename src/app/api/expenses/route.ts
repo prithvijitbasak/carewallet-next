@@ -1,26 +1,46 @@
+// Handles batch expense creation and validation for the authenticated user
+
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/auth";
-import Expense from "@/models/Expense";
+import Expense, { IExpense } from "@/models/Expense";
 import { validateExpense } from "@/lib/validators/expense.validator";
+import mongoose from "mongoose";
+
+interface PreparedExpense {
+  user: mongoose.Types.ObjectId;
+  title: string;
+  amount: number;
+  category: IExpense["category"];
+  date: Date;
+  notes: string;
+}
+
+interface FailedExpense {
+  expense: unknown;
+  errors: unknown;
+}
 
 export async function POST(req: NextRequest) {
   try {
+    // Step 1: Verify authenticated user session
     const { user, error, status } = await getAuthenticatedUser(req);
 
     if (error || !user) {
       return NextResponse.json({ message: error || "Unauthorized" }, { status });
     }
 
+    // Step 2: Read payload (supports single object or array)
     let expenses = await req.json();
 
     if (!Array.isArray(expenses)) {
       expenses = [expenses];
     }
 
-    const validExpenses: any[] = [];
-    const invalidExpenses: any[] = [];
+    const validExpenses: PreparedExpense[] = [];
+    const invalidExpenses: FailedExpense[] = [];
 
-    expenses.forEach((expense: any) => {
+    // Step 3: Validate each expense item independently
+    expenses.forEach((expense: unknown) => {
       const validationResult = validateExpense(expense);
       if (validationResult.success) {
         validExpenses.push({
@@ -28,7 +48,7 @@ export async function POST(req: NextRequest) {
           title: validationResult.data.title,
           amount: validationResult.data.amount,
           category: validationResult.data.category,
-          date: new Date(validationResult.data.date as any),
+          date: new Date(validationResult.data.date),
           notes: validationResult.data.notes || "",
         });
       } else {
@@ -39,11 +59,13 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    let insertedExpenses: any[] = [];
+    // Step 4: Insert valid items in a single batch operation
+    let insertedExpenses: unknown[] = [];
     if (validExpenses.length > 0) {
       insertedExpenses = await Expense.insertMany(validExpenses);
     }
 
+    // Step 5: Respond with detailed status
     return NextResponse.json(
       {
         success: invalidExpenses.length === 0,
@@ -56,13 +78,14 @@ export async function POST(req: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Unknown error";
     console.error("Error adding expenses:", err);
     return NextResponse.json(
       {
         success: false,
         message: "Internal Server Error",
-        error: err.message,
+        error: errorMessage,
       },
       { status: 500 }
     );

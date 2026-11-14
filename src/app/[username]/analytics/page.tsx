@@ -1,3 +1,5 @@
+// Server component page for expense analytics with pre-fetched weekly and category metrics
+
 import React from "react";
 import WeeklyExpenseChart from "@/components/analytics/WeeklyExpenseChart";
 import DashboardAnalytics from "@/components/DashboardAnalytics";
@@ -11,9 +13,10 @@ interface AnalyticsPageProps {
 }
 
 export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
-  const resolvedParams = await params;
-  const routeUsername = resolvedParams?.username;
+  // Await dynamic route parameter in Next.js 16
+  await params;
 
+  // Server-side prefetch of analytics datasets
   const data = await ssrFetch<AnalyticsData>("/api/ssr/analytics", {
     requireAuth: true,
   });

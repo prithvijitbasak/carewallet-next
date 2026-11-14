@@ -1,3 +1,5 @@
+// Server component page for adding expenses with pre-fetched categories and default date
+
 import React from "react";
 import AddExpense from "@/components/AddExpense";
 import { ssrFetch } from "@/lib/authFetch";
@@ -10,9 +12,10 @@ interface AddExpensePageProps {
 }
 
 export default async function AddExpensePage({ params }: AddExpensePageProps) {
-  const resolvedParams = await params;
-  const routeUsername = resolvedParams?.username;
+  // Await route parameter in Next.js 16
+  await params;
 
+  // Server-side prefetch of category list and current date
   const data = await ssrFetch<AddExpenseData>("/api/ssr/add-expense", {
     requireAuth: true,
   });

@@ -1,3 +1,6 @@
+// Timezone validation using TimezoneDB API with Intl fallback
+
+// Validates whether a provided timezone string is a recognized IANA timezone
 export const isValidTimezone = async (timezone: string): Promise<boolean> => {
   try {
     const apiKey = process.env.TIMEZONE_DB_API_KEY;
@@ -21,7 +24,8 @@ export const isValidTimezone = async (timezone: string): Promise<boolean> => {
       }
     }
 
-    // Fallback using Intl
+    // Fallback using native JavaScript Internationalization (Intl) API
+    // If timezone is invalid, Intl.DateTimeFormat will throw a RangeError
     Intl.DateTimeFormat(undefined, { timeZone: timezone });
     return true;
   } catch (error) {

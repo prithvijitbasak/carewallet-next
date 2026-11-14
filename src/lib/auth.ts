@@ -1,18 +1,23 @@
+// Authentication utilities for JWT verification and session handling
+
 import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { IUser } from "@/models/User";
 import { userRepository } from "@/repositories/user.repository";
 
+// Decoded JWT payload containing userId and timestamps
 export interface DecodedToken {
   userId: string;
   iat?: number;
   exp?: number;
 }
 
+// Verifies a JWT access token string and retrieves the corresponding User from the database
 export async function verifyUserToken(
   token?: string | null
 ): Promise<{ user: IUser | null; error: string | null; status: number }> {
+  // Step 1: Check if token is present
   if (!token) {
     return {
       user: null,
@@ -22,11 +27,13 @@ export async function verifyUserToken(
   }
 
   try {
+    // Step 2: Cryptographically verify the token against our secret key
     const decoded = jwt.verify(
       token,
       process.env.JWT_ACCESS_KEY as string
     ) as DecodedToken;
 
+    // Step 3: Validate that the token payload actually contains a userId
     if (!decoded || !decoded.userId) {
       return {
         user: null,
@@ -35,6 +42,7 @@ export async function verifyUserToken(
       };
     }
 
+    // Step 4: Fetch user data from MongoDB (excluding password and version key)
     const userData = await userRepository.findById(decoded.userId);
 
     if (!userData) {
@@ -45,9 +53,16 @@ export async function verifyUserToken(
       };
     }
 
+    // Step 5: Success! User authenticated
     return { user: userData, error: null, status: 200 };
-  } catch (error: any) {
-    if (error.name === "TokenExpiredError") {
+  } catch (error: unknown) {
+    // Distinguish token expiration from general token corruption/tampering
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "name" in error &&
+      (error as { name: string }).name === "TokenExpiredError"
+    ) {
       return {
         user: null,
         error: "Unauthorized: Access token has expired.",
@@ -63,10 +78,11 @@ export async function verifyUserToken(
   }
 }
 
+// Extracts and verifies the user from an incoming Next.js API request header or cookie
 export async function getAuthenticatedUser(
   req: NextRequest
 ): Promise<{ user: IUser | null; error: string | null; status: number }> {
-  // 1. Check custom request header "accessToken" (raw token value, no "Bearer")
+  // 1. Check custom request header "accessToken" (raw token value)
   let token =
     req.headers.get("accessToken")?.trim() ||
     req.headers.get("accesstoken")?.trim();
@@ -79,6 +95,7 @@ export async function getAuthenticatedUser(
   return verifyUserToken(token);
 }
 
+// Retrieves the authenticated user from server component cookies
 export async function getAuthenticatedUserFromCookies(): Promise<IUser | null> {
   try {
     const cookieStore = await cookies();
@@ -90,6 +107,7 @@ export async function getAuthenticatedUserFromCookies(): Promise<IUser | null> {
   }
 }
 
+// Security configuration for storing the accessToken cookie (HttpOnly, Secure, SameSite)
 export const cookieOptions = {
   accessToken: {
     name: "accessToken",

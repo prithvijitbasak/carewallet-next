@@ -1,3 +1,5 @@
+// Layout wrapper for authenticated dashboard routes with sidebar navigation
+
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -14,6 +16,7 @@ export default function UserLayout({
   const { user, loading, isLogin } = useAuth();
   const router = useRouter();
 
+  // Route protection: redirect unauthenticated visitors to /login
   useEffect(() => {
     if (!loading && !isLogin) {
       router.push("/login");
@@ -24,6 +27,7 @@ export default function UserLayout({
     setIsSidebarOpen((prev) => !prev);
   };
 
+  // Display a clean loading indicator while authentication status is being determined
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#f8fafc]">
@@ -34,16 +38,20 @@ export default function UserLayout({
     );
   }
 
+  // Prevent render flash if user is logged out (will redirect via useEffect)
   if (!user) {
     return null;
   }
 
   return (
     <div className="min-h-screen flex bg-[#f8fafc] text-gray-900">
+      {/* Persistent Left Navigation Sidebar */}
       <Sidebar
         isOpen={isSidebarOpen}
         handleCloseArrowClick={handleCloseArrowClick}
       />
+
+      {/* Main Content Area: dynamically offsets margin to fit sidebar */}
       <main
         className={`${
           isSidebarOpen ? "ml-[250px]" : "ml-[70px]"
