@@ -1,18 +1,4 @@
-/**
- * ============================================================================
- * AUTHENTICATED USER DASHBOARD LAYOUT (`/[username]/layout.tsx`)
- * ============================================================================
- * 
- * Beginner's Guide:
- * 
- * 1. Protected Route Boundary:
- *    Any route matching `/[username]/*` (dashboard, analytics, add-expense, reports, profile)
- *    is protected. If `!loading && !isLogin`, the user is redirected immediately to `/login`.
- * 
- * 2. Shared Dashboard Layout:
- *    Renders the collapsible `<Sidebar />` on the left and a responsive `<main>` container
- *    on the right that dynamically adjusts margin based on `isSidebarOpen`.
- */
+// Layout wrapper for authenticated dashboard routes with sidebar navigation
 
 "use client";
 

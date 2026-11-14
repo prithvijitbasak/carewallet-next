@@ -1,16 +1,4 @@
-/**
- * ============================================================================
- * REPORTS PAGE (`/[username]/reports`)
- * ============================================================================
- * 
- * Beginner's Guide:
- * 
- * Server Component that initializes the financial reports interface:
- * 1. Resolves dynamic route parameters (`await params`).
- * 2. Fetches default report data on the server via `ssrFetch<ReportsData>`.
- * 3. Renders the interactive `<ReportsContent />` client component, which lets
- *    users change date ranges, paginate results, and download PDF reports.
- */
+// Server component page for generating and exporting expense reports and PDFs
 
 import React from "react";
 import ReportsContent from "@/components/reports/ReportsContent";

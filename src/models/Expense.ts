@@ -1,28 +1,9 @@
-/**
- * ============================================================================
- * EXPENSE MODEL (Mongoose Schema & Types)
- * ============================================================================
- * 
- * What is this file for?
- * This defines how an individual "Expense" document is represented in MongoDB.
- * 
- * Key Concepts for Beginners:
- * 1. Relationships (Foreign Keys in MongoDB):
- *    The `user` field contains a MongoDB ObjectId referencing the `User` model.
- *    This ensures every single expense belongs to exactly one user.
- * 2. Indexes:
- *    The `user: { index: true }` option adds a database index on the `user` field,
- *    enabling fast queries when filtering expenses by user ID.
- * 3. Enums:
- *    The `category` field only allows values defined in `expenseCategories` array.
- */
+// Expense Mongoose model and TypeScript interfaces
 
 import mongoose, { Schema, Document, Model } from "mongoose";
 import { expenseCategories, ExpenseCategory } from "@/constants/expenseCategories";
 
-/**
- * TypeScript interface representing a single Expense document.
- */
+// TypeScript interface representing a single Expense document
 export interface IExpense extends Document {
   _id: mongoose.Types.ObjectId;
   user: mongoose.Types.ObjectId;
@@ -35,9 +16,7 @@ export interface IExpense extends Document {
   updatedAt: Date;
 }
 
-/**
- * Mongoose Schema defining constraints, validations, and types for an Expense.
- */
+// Mongoose Schema defining constraints, validations, and types for an Expense
 const ExpenseSchema = new Schema<IExpense>(
   {
     // The user who created/owns this expense

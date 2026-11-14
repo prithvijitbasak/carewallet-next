@@ -1,23 +1,4 @@
-/**
- * ============================================================================
- * `useAuth` CUSTOM HOOK (Authentication Facade)
- * ============================================================================
- * 
- * Beginner's Guide:
- * 
- * What is a Custom Hook?
- * A custom hook is a JavaScript function that uses built-in React hooks (`useState`,
- * `useEffect`, `useCallback`) or third-party hooks (`useAppDispatch`, `useAppSelector`).
- * 
- * Why create `useAuth`?
- * Instead of writing `const dispatch = useAppDispatch(); dispatch(logoutUser());`
- * inside every button or page, components can simply do:
- * ```tsx
- * const { user, isLogin, logout } = useAuth();
- * ```
- * This pattern is known as the "Facade Pattern" — it hides complex Redux boilerplate
- * behind clean, intuitive function calls.
- */
+// Custom hook providing an authentication facade over Redux actions and state
 
 "use client";
 
@@ -42,16 +23,12 @@ export const useAuth = () => {
   // Read current user state from the Redux store
   const { user, isLogin, loading } = useAppSelector((state) => state.auth);
 
-  /**
-   * Refetches the user session from `/api/users/me`
-   */
+  // Refetches the user session from /api/users/me
   const handleFetchUser = useCallback(async () => {
     return await dispatch(fetchUser()).unwrap().catch(() => null);
   }, [dispatch]);
 
-  /**
-   * Logs out the user: calls API to clear cookies, updates Redux, and redirects to home page ("/")
-   */
+  // Logs out the user, clears session cookies, and redirects to home
   const handleLogout = useCallback(async () => {
     try {
       await dispatch(logoutUser()).unwrap();
@@ -62,9 +39,7 @@ export const useAuth = () => {
     }
   }, [dispatch, router]);
 
-  /**
-   * Helper to set user, supporting both value and callback update functions
-   */
+  // Helper to update user state with direct value or callback
   const handleSetUser = useCallback(
     (
       update:
@@ -82,9 +57,7 @@ export const useAuth = () => {
     [dispatch, user]
   );
 
-  /**
-   * Helper to toggle isLogin flag
-   */
+  // Helper to toggle login state
   const handleSetIsLogin = useCallback(
     (val: boolean | ((prev: boolean) => boolean)) => {
       if (typeof val === "function") {

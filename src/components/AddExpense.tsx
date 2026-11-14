@@ -1,24 +1,4 @@
-/**
- * ============================================================================
- * `AddExpense` COMPONENT (Dynamic Multi-Row Expense Entry Form)
- * ============================================================================
- * 
- * Beginner's Guide to this Component:
- * 
- * 1. Dynamic Form Rows:
- *    Users can add multiple expenses at once. We store an array of objects in state:
- *    `inputFields = [{ id, title, amount, category, date, note }]`
- *    - Clicking "Add More" appends a new blank item to the array.
- *    - Clicking the Trash icon removes that item by `id`.
- * 
- * 2. Controlled Inputs:
- *    Every input field reflects state (`value={field.title}`) and updates state
- *    via `handleChange(id, "title", e.target.value)`.
- * 
- * 3. Validation & Batch Submission:
- *    Before submitting to the server, we check that required fields (Title, Amount,
- *    Category, Date) are non-empty, and send all rows in a single batch POST request.
- */
+// Dynamic multi-row expense entry form component
 
 "use client";
 
@@ -88,9 +68,7 @@ const AddExpense: React.FC<AddExpenseProps> = ({
     };
   }, [initialCategories]);
 
-  /**
-   * Updates an individual field on an expense row by its unique ID
-   */
+  // Updates an individual field on an expense row by its unique ID
   const handleChange = (id: number, field: keyof InputFieldItem, value: string) => {
     setInputFields((prevFields) =>
       prevFields.map((item) =>
@@ -99,9 +77,7 @@ const AddExpense: React.FC<AddExpenseProps> = ({
     );
   };
 
-  /**
-   * Appends a new blank expense row
-   */
+  // Appends a new blank expense row
   const addInputFields = () => {
     setInputFields((prev) => [
       ...prev,
@@ -116,9 +92,7 @@ const AddExpense: React.FC<AddExpenseProps> = ({
     ]);
   };
 
-  /**
-   * Removes an expense row by its unique ID (maintaining at least 1 row)
-   */
+  // Removes an expense row by its unique ID (maintaining at least 1 row)
   const deleteInputFields = (id: number) => {
     if (inputFields.length > 1) {
       setInputFields((prev) => prev.filter((field) => field.id !== id));
@@ -127,9 +101,7 @@ const AddExpense: React.FC<AddExpenseProps> = ({
     }
   };
 
-  /**
-   * Validates all rows and sends batch POST request to /api/expenses
-   */
+  // Validates all rows and sends batch POST request to /api/expenses
   const handleSubmit = async () => {
     // Client-side validation: verify all required fields
     for (const field of inputFields) {

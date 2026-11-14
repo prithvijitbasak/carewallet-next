@@ -1,19 +1,4 @@
-/**
- * ============================================================================
- * DATABASE CONNECTION UTILITY (MongoDB + Mongoose)
- * ============================================================================
- * 
- * Why does this file exist?
- * Next.js runs in a "serverless" and hot-reloading environment during development.
- * If we simply called `mongoose.connect()` every time a request arrived, Next.js
- * would open dozens of new database connections, exhausting MongoDB's connection pool.
- *
- * How this solution works:
- * We cache the active Mongoose connection in NodeJS's `global` object.
- * 1. If a connection already exists in `global`, we reuse it immediately.
- * 2. If a connection is in the middle of connecting, we wait for that existing Promise.
- * 3. Only if no connection exists do we initiate a new connection to MongoDB.
- */
+// Database connection utility with cached Mongoose instance for serverless environments
 
 import mongoose from "mongoose";
 
@@ -26,11 +11,7 @@ if (!MONGODB_URI) {
   );
 }
 
-/**
- * Shape of our global connection cache.
- * - conn: The active, established Mongoose connection (or null if not yet connected)
- * - promise: The pending Promise while connecting is in progress
- */
+// Cached connection and in-flight promise for Mongoose
 interface MongooseCache {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
@@ -49,20 +30,7 @@ if (!global.mongooseCache) {
   global.mongooseCache = cached;
 }
 
-/**
- * Connect to the MongoDB database using Mongoose.
- * 
- * @returns A promise that resolves to the Mongoose instance.
- * @example
- * ```ts
- * import connectDb from "@/lib/db";
- * 
- * export async function GET() {
- *   await connectDb();
- *   // Now you can safely use Mongoose models!
- * }
- * ```
- */
+// Connects to MongoDB using cached connection or initiates a new connection
 export async function connectDb(): Promise<typeof mongoose> {
   // Step 1: Return existing connection if already established
   if (cached.conn) {

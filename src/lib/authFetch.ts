@@ -1,37 +1,13 @@
-/**
- * ============================================================================
- * SSR FETCH UTILITY (Server-Side Internal Request Helper)
- * ============================================================================
- * 
- * Why does this file exist?
- * In Next.js App Router, Server Components run exclusively on the Node server.
- * When a Server Component needs to fetch data from an internal `/api/...` route:
- * 1. It does NOT automatically know the domain/host (e.g., http://localhost:3000 vs https://carewallet.com).
- * 2. It does NOT automatically attach the user's browser cookies or authentication headers.
- * 
- * What `ssrFetch` does:
- * - Reads current request headers (`host`, `x-forwarded-proto`) to construct the absolute URL.
- * - Extracts the `accessToken` cookie from the incoming visitor request and forwards it.
- * - Automatically returns parsed JSON data or `null` if unauthorized / failed.
- */
+// Server-side internal fetch helper with cookie forwarding and host resolution
 
 import { cookies, headers } from "next/headers";
 
-/**
- * Options for `ssrFetch`, extending standard web `RequestInit` (fetch options).
- * - `requireAuth`: When true, immediately returns null if no valid token cookie is found.
- */
+// Options for ssrFetch extending RequestInit with requireAuth flag
 export interface SsrFetchOptions extends RequestInit {
   requireAuth?: boolean;
 }
 
-/**
- * Server-side fetch wrapper for making internal API calls within Server Components.
- * 
- * @param endpoint - Relative URL path (e.g. "/api/ssr/dashboard") or absolute URL.
- * @param options - Standard fetch options plus `requireAuth`.
- * @returns The parsed JSON data typed as `T`, or `null` if request failed.
- */
+// Server-side fetch wrapper for making authenticated internal API calls in Server Components
 export async function ssrFetch<T = unknown>(
   endpoint: string,
   options: SsrFetchOptions = {}

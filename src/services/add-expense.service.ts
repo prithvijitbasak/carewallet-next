@@ -1,17 +1,4 @@
-/**
- * ============================================================================
- * ADD EXPENSE SERVICE (Pre-populates Defaults & Recent Expenses)
- * ============================================================================
- * 
- * Beginner's Guide:
- * 
- * When a user navigates to the "Add Expense" page:
- * 1. Default Date: We pre-fill today's date in `YYYY-MM-DD` (HTML `<input type="date">` format)
- *    adjusted to their local timezone so they don't have to manually pick today.
- * 2. Categories: We provide the pre-configured categories array from constants.
- * 3. Recent Expenses: We fetch their 5 most recent expenses so the user can quickly
- *    review what was previously logged without switching pages.
- */
+// Service preparing default date, categories, and recent expenses for Add Expense page
 
 import { IUser } from "@/models/User";
 import { expenseCategories } from "@/constants/expenseCategories";
@@ -39,9 +26,7 @@ export interface AddExpenseData {
 }
 
 export class AddExpenseService {
-  /**
-   * Prepares server-side props for the Add Expense page.
-   */
+  // Prepares server-side props for the Add Expense page
   async getAddExpenseData(user: IUser): Promise<AddExpenseData> {
     const now = new Date();
     let yearNum = now.getFullYear();

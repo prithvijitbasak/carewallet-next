@@ -1,19 +1,4 @@
-/**
- * ============================================================================
- * UPDATE USER PROFILE API ROUTE (`PUT /api/users/update`)
- * ============================================================================
- * 
- * Beginner's Guide:
- * 
- * When updating user account details:
- * 1. Partial updates: The user might only edit their email or username.
- * 2. Uniqueness Conflict Prevention:
- *    If the user changes their username to "john", we check if another user already
- *    has that username (`_id: { $ne: userId }` - "not equal to current user").
- *    This allows the user to submit their own existing username without collision errors!
- * 3. Security:
- *    The returned updated user record always excludes the password hash (`.select("-password")`).
- */
+// Updates user profile details with uniqueness conflict checks
 
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/auth";

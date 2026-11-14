@@ -1,24 +1,4 @@
-/**
- * ============================================================================
- * LOGIN PAGE (`/login`)
- * ============================================================================
- * 
- * Beginner's Guide:
- * 
- * 1. Controlled Form State:
- *    `loggedInUser` stores `{ identifier, password }`.
- *    `handleInput` uses the computed property name pattern `[e.target.name]: e.target.value`
- *    so one function handles both input fields cleanly.
- * 
- * 2. Visual Effects with Framer Motion:
- *    `<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>` creates smooth
- *    fade-in animations without manual CSS keyframes.
- * 
- * 3. Session Synchronization:
- *    After successful authentication:
- *    - Updates global Redux auth state via `setIsLogin(true)` and `fetchUser()`.
- *    - Redirects user to their personal dashboard: `/${res_data.username}`.
- */
+// Login page with controlled form state, animations, and session synchronization
 
 "use client";
 

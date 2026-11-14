@@ -1,18 +1,4 @@
-/**
- * ============================================================================
- * MONTH DETAILS SERVICE (Monthly Paginated Expense Inspector)
- * ============================================================================
- * 
- * Beginner's Guide:
- * 
- * What does this service do?
- * When viewing the "Month Details" page:
- * 1. Derives the target month (1-12) and year (e.g. 2026), defaulting to current local time.
- * 2. Determines the exact start timestamp (`new Date(y, m - 1, 1, 0, 0, 0, 0)`)
- *    and end timestamp (`new Date(y, m, 0, 23, 59, 59, 999)`).
- * 3. Computes the previous month/year and next month/year for month navigation arrows.
- * 4. Queries paginated records with total pages and sum from the ExpenseRepository.
- */
+// Service loading paginated monthly expenses and previous/next month navigation
 
 import { IUser } from "@/models/User";
 import { expenseRepository } from "@/repositories/expense.repository";
@@ -48,9 +34,7 @@ export interface MonthDetailsQueryOptions {
 }
 
 export class MonthDetailsService {
-  /**
-   * Retrieves paginated expenses for an entire month along with navigation month/year strings.
-   */
+  // Retrieves paginated expenses for an entire month with navigation metadata
   async getMonthDetailsData(
     user: IUser,
     options: MonthDetailsQueryOptions = {}

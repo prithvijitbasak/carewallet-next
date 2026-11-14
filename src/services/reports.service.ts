@@ -1,17 +1,4 @@
-/**
- * ============================================================================
- * REPORTS SERVICE (Custom Date Range Statement & PDF Export Data)
- * ============================================================================
- * 
- * Beginner's Guide:
- * 
- * What does this service do?
- * Powers the "Reports" feature where users can:
- * 1. Filter expenses between ANY arbitrary start date and end date (e.g. 01-01-2026 to 13-11-2026).
- * 2. Calculate the exact grand total spent across the selected period.
- * 3. Paginate through records (10 per page by default).
- * 4. Generate downloadable PDF financial statements via `@react-pdf/renderer`.
- */
+// Service generating date-range filtered report data and totals for PDF export
 
 import { IUser } from "@/models/User";
 import { expenseRepository } from "@/repositories/expense.repository";
@@ -46,9 +33,7 @@ export interface ReportsQueryOptions {
 }
 
 export class ReportsService {
-  /**
-   * Generates date-range filtered report data with pagination and total spending.
-   */
+  // Generates date-range filtered report data with pagination and total spending
   async getReportsData(
     user: IUser,
     options: ReportsQueryOptions = {}

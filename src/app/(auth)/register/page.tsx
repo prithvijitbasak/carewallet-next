@@ -1,24 +1,4 @@
-/**
- * ============================================================================
- * REGISTRATION / SIGNUP PAGE (`/register`)
- * ============================================================================
- * 
- * Beginner's Guide:
- * 
- * Key Features Demonstrated:
- * 1. Client-Side Form Validation:
- *    - Verifies matching passwords before sending any HTTP request.
- * 2. Automatic Timezone Detection:
- *    `Intl.DateTimeFormat().resolvedOptions().timeZone` automatically detects
- *    the user's browser timezone (e.g. "Asia/Kolkata", "America/New_York") so they don't
- *    have to manually select it from a dropdown!
- * 3. Username Normalization:
- *    `registeredUser.username.toLowerCase()` ensures all usernames are stored lowercase
- *    to prevent duplicate casing variations (e.g. "JohnDoe" vs "johndoe").
- * 4. Instant Authentication:
- *    Upon successful registration, the server sets the auth cookie, Redux is populated,
- *    and the user is redirected directly to their dashboard.
- */
+// Registration page with timezone detection, validation, and auto-login
 
 "use client";
 

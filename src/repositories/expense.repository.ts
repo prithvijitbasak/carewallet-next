@@ -1,21 +1,4 @@
-/**
- * ============================================================================
- * EXPENSE REPOSITORY (Data Access Layer for Expenses)
- * ============================================================================
- * 
- * Beginner's Guide to MongoDB Aggregations:
- * 
- * When dealing with financial data, fetching thousands of expense records into
- * Node.js memory to sum them up with JavaScript `reduce()` can be extremely slow and memory-intensive.
- * 
- * Instead, we use MongoDB's native "Aggregation Pipeline".
- * Think of an aggregation pipeline as a factory assembly line:
- * 1. `$match`: Filters the documents (like a WHERE clause in SQL).
- * 2. `$group`: Groups matching documents together and calculates mathematical sums (`$sum`).
- * 3. `$cond`: Evaluates an IF/THEN/ELSE condition directly inside the database.
- * 4. `$project`: Shapes the final output keys and values.
- * 5. `$sort`: Sorts records (e.g. newest first).
- */
+// Data access layer for Expense collection using MongoDB aggregation pipelines
 
 import mongoose from "mongoose";
 import connectDb from "@/lib/db";
@@ -49,10 +32,7 @@ export interface DailyCategoryExpense {
 }
 
 export class ExpenseRepository {
-  /**
-   * Computes today's, this month's, and this year's total expenses in a SINGLE database query
-   * using conditional summation inside a MongoDB aggregation pipeline.
-   */
+  // Aggregates today, month, and year totals in a single database query
   async getDashboardSummary(
     userId: string | mongoose.Types.ObjectId,
     dateRanges: DateRanges
@@ -130,10 +110,7 @@ export class ExpenseRepository {
     };
   }
 
-  /**
-   * Aggregates total expense amounts per category within a specific date range.
-   * Ensures all categories from `expenseCategories` are present in the returned list (defaulting to 0).
-   */
+  // Aggregates total expense amounts per category within a date range
   async getCategoryAnalytics(
     userId: string | mongoose.Types.ObjectId,
     startDate: Date,
@@ -176,10 +153,7 @@ export class ExpenseRepository {
     });
   }
 
-  /**
-   * Retrieves the most recent expenses for a user.
-   * Uses `.lean()` for better read performance (returns plain JS objects instead of Mongoose Documents).
-   */
+  // Retrieves most recent lean expense records for a user
   async getRecentExpenses(
     userId: string | mongoose.Types.ObjectId,
     limit: number = 5
@@ -192,10 +166,7 @@ export class ExpenseRepository {
       .lean();
   }
 
-  /**
-   * Calculates category breakdown for the last 7 calendar days.
-   * Groups results by day string and category, formatted according to user timezone.
-   */
+  // Calculates category spending breakdown for the last 7 calendar days
   async getLast7DaysAnalytics(
     userId: string | mongoose.Types.ObjectId,
     timezone?: string
@@ -280,9 +251,7 @@ export class ExpenseRepository {
     return finalData;
   }
 
-  /**
-   * Generates a paginated report of expenses between two dates with grand total.
-   */
+  // Generates paginated report of expenses between two dates with grand total
   async getDateRangeReport(
     userId: string | mongoose.Types.ObjectId,
     startDate: Date,
@@ -333,9 +302,7 @@ export class ExpenseRepository {
     };
   }
 
-  /**
-   * Retrieves all expenses for a specific single day.
-   */
+  // Retrieves all expenses and total sum for a single day
   async getExpensesByDate(
     userId: string | mongoose.Types.ObjectId,
     startDate: Date,
@@ -363,9 +330,7 @@ export class ExpenseRepository {
     };
   }
 
-  /**
-   * Retrieves paginated expenses for an entire month with total month sum.
-   */
+  // Retrieves paginated expenses for an entire month with total month sum
   async getExpensesByMonth(
     userId: string | mongoose.Types.ObjectId,
     startDate: Date,

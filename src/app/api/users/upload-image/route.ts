@@ -1,22 +1,4 @@
-/**
- * ============================================================================
- * UPLOAD USER AVATAR API ROUTE (`POST /api/users/upload-image`)
- * ============================================================================
- * 
- * Beginner's Guide to Handling File Uploads in Next.js:
- * 
- * 1. FormData:
- *    Instead of sending JSON, file uploads use `multipart/form-data`.
- *    Next.js provides `await req.formData()` to parse multipart bodies natively.
- * 
- * 2. File Validation:
- *    - MIME Type Check: Ensures `file.type.startsWith("image/")` to prevent uploading malicious scripts.
- *    - File Size Limit: Caps uploads at 5MB (`5 * 1024 * 1024` bytes) to prevent database bloat.
- * 
- * 3. Buffer Conversion:
- *    `file.arrayBuffer()` converts web stream bytes into an ArrayBuffer, which is
- *    then converted to a Node.js `Buffer.from(arrayBuffer)` and stored directly in MongoDB.
- */
+// Handles multipart image upload, validation, and buffer storage in MongoDB
 
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/auth";

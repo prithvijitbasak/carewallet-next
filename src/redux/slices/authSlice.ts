@@ -1,25 +1,8 @@
-/**
- * ============================================================================
- * AUTH REDUX SLICE (Global State Management for Authentication)
- * ============================================================================
- * 
- * Beginner's Guide to Redux Toolkit:
- * 
- * 1. Store: The single JavaScript object containing our whole app's global state.
- * 2. Slice: A modular chunk of that state (e.g. auth state, UI state) with its own reducers.
- * 3. Reducers: Pure functions that describe how state changes in response to an action.
- * 4. AsyncThunk: A helper for running asynchronous operations (like calling `fetch("/api/users/me")`).
- *    It automatically dispatches three actions during its lifecycle:
- *    - `pending`: Triggered when the API request starts (we set `loading = true`).
- *    - `fulfilled`: Triggered when the API returns data successfully (we save `user`).
- *    - `rejected`: Triggered if the request fails (we save `error`).
- */
+// Redux slice managing global authentication state, session fetching, and logout
 
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 
-/**
- * Shape of the user information stored in Redux
- */
+// User profile shape stored in Redux state
 export interface UserType {
   fullName: string;
   username: string;
@@ -35,9 +18,7 @@ export interface UserType {
   updatedAt?: string;
 }
 
-/**
- * Redux state shape for the auth slice
- */
+// State shape for authentication slice
 export interface AuthState {
   user: UserType | null;
   isLogin: boolean;
@@ -52,9 +33,7 @@ export const initialAuthState: AuthState = {
   error: null,
 };
 
-/**
- * Async thunk to fetch the currently authenticated user's profile from `/api/users/me`.
- */
+// Async thunk to fetch currently authenticated user profile from /api/users/me
 export const fetchUser = createAsyncThunk(
   "auth/fetchUser",
   async (_, { rejectWithValue }) => {
@@ -77,10 +56,7 @@ export const fetchUser = createAsyncThunk(
   }
 );
 
-/**
- * Async thunk to log out the user by calling `/api/auth/logout`.
- * Clears the server-side authentication cookie.
- */
+// Async thunk to log out user and clear server-side session cookies
 export const logoutUser = createAsyncThunk(
   "auth/logoutUser",
   async (_, { rejectWithValue }) => {

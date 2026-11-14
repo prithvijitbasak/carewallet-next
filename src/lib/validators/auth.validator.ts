@@ -1,21 +1,8 @@
-/**
- * ============================================================================
- * AUTHENTICATION VALIDATORS (Zod Schemas)
- * ============================================================================
- * 
- * What is this file for?
- * It defines the data contracts and validation rules for user authentication:
- * - `loginSchema`: Validates login credentials (username/email/phone + password)
- * - `signupSchema`: Validates user registration information
- * - Reusable field schemas: fullName, username, email, phone, password, timezone
- */
+// Zod validation schemas for authentication credentials and registration
 
 import { z } from "zod";
 
-/**
- * Schema for user login.
- * Identifier can be username, email address, or phone number.
- */
+// Schema for user login with username, email, or phone identifier
 export const loginSchema = z.object({
   identifier: z
     .string()
@@ -36,9 +23,7 @@ export const loginSchema = z.object({
     ),
 });
 
-/**
- * Reusable field validators used across signup and profile update
- */
+// Reusable field validators used across signup and profile update
 export const fullName = z
   .string()
   .trim()
@@ -84,9 +69,7 @@ export const timezone = z
   .trim()
   .regex(/^[A-Za-z_]+\/[A-Za-z_]+$/, { message: "Invalid timezone format (e.g., Asia/Kolkata)" });
 
-/**
- * Schema for new user registration
- */
+// Schema for new user registration
 export const signupSchema = z.object({
   fullName,
   username,

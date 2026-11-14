@@ -1,14 +1,4 @@
-/**
- * ============================================================================
- * REMOVE USER AVATAR API ROUTE (`POST /api/users/remove-image`)
- * ============================================================================
- * 
- * Beginner's Guide:
- * 
- * What does this endpoint do?
- * Clears the user's uploaded profile avatar, setting `image: null` in MongoDB.
- * Reverts the UI back to displaying the user's initial (e.g. "P" for Prithvijit).
- */
+// Removes the uploaded user avatar from MongoDB
 
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/auth";

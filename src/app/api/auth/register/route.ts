@@ -1,19 +1,4 @@
-/**
- * ============================================================================
- * USER REGISTRATION API ROUTE (`POST /api/auth/register`)
- * ============================================================================
- * 
- * Beginner's Guide to User Signup:
- * 
- * Registration follows a secure 5-step lifecycle:
- * 1. Zod Validation: Ensures required fields, regex constraints, and formats are met.
- * 2. Uniqueness Check: Checks MongoDB to ensure username, email, and phone aren't already taken.
- * 3. Password Hashing: Hashes the plain password with `bcrypt.hash(password, 10)` so passwords
- *    are never saved in plain-text.
- * 4. Database Creation: Stores the new user document in MongoDB.
- * 5. Instant Login: Issues a signed JWT access token in an HttpOnly cookie so the user
- *    is immediately authenticated without having to log in manually right after sign-up.
- */
+// Handles user registration, password hashing, validation, and auto-login
 
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";

@@ -1,20 +1,4 @@
-/**
- * ============================================================================
- * EDIT EXPENSE API ROUTE (`PATCH /api/expenses/edit`)
- * ============================================================================
- * 
- * Beginner's Guide to HTTP PATCH vs PUT:
- * 
- * - PUT: Replaces an entire resource.
- * - PATCH: Updates specific fields of an existing resource.
- * 
- * Update Lifecycle:
- * 1. Authentication Check: Ensure user is logged in.
- * 2. Zod Validation: Re-validate updated title, amount, category, date.
- * 3. Ownership Verification: `Expense.findOne({ _id, user: user._id })` confirms ownership.
- * 4. Database Update: `Expense.findByIdAndUpdate(_id, updatedData, { new: true })`
- *    applies the updates and returns the updated document.
- */
+// Updates an existing expense record after validating input and ownership
 
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/auth";

@@ -1,19 +1,4 @@
-/**
- * ============================================================================
- * PROFILE SERVICE (User Profile & Avatar Conversion)
- * ============================================================================
- * 
- * Beginner's Guide:
- * 
- * How do user avatars work in CareWallet?
- * 1. Avatars are uploaded as raw image binary buffers into MongoDB (alongside MIME type e.g. "image/png").
- * 2. Browsers cannot directly display raw binary byte buffers in JSON.
- * 3. This service converts the binary Buffer into a standard Base64 string:
- *    `Buffer.from(...).toString("base64")`
- * 4. The client can immediately render this with:
- *    `<img src={`data:${contentType};base64,${data}`} />`
- * 5. Sensitive credentials (password hashes, database internals) are stripped before returning.
- */
+// Service managing profile data formatting, image base64 conversion, and updates
 
 import { IUser } from "@/models/User";
 
@@ -38,10 +23,7 @@ export interface ProfileData {
 }
 
 export class ProfileService {
-  /**
-   * Sanitizes the user document, converts binary profile pictures to Base64,
-   * and prepares profile data for the user settings page.
-   */
+  // Sanitizes user document and converts binary profile picture to base64
   async getProfileData(user: IUser): Promise<ProfileData> {
     const rawUser = user.toObject ? user.toObject() : { ...user };
 

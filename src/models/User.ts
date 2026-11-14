@@ -1,28 +1,10 @@
-/**
- * ============================================================================
- * USER MODEL (Mongoose Schema & Types)
- * ============================================================================
- * 
- * What is this file for?
- * In MongoDB, documents are stored as flexible JSON-like objects (BSON).
- * Mongoose allows us to define a strict "Schema" so every user record
- * adheres to a clear data structure with validations, types, and custom helper methods.
- * 
- * Key Features:
- * 1. IUser: TypeScript interface representing a single User document.
- * 2. UserSchema: Mongoose schema definition with field validations and default values.
- * 3. Instance Methods:
- *    - `generateAccessToken()`: Creates a signed JWT token containing the user's ID.
- *    - `comparePassword(password)`: Securely compares a plain-text password with the bcrypt hash.
- */
+// User Mongoose model with password hashing and verification
 
 import mongoose, { Schema, Document, Model } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-/**
- * TypeScript interface defining all fields and methods on a User document.
- */
+// TypeScript interface defining all fields and methods on a User document
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
   image?: {
@@ -44,9 +26,7 @@ export interface IUser extends Document {
   comparePassword(password: string): Promise<boolean>;
 }
 
-/**
- * Mongoose Schema describing the structure and rules of the 'users' collection.
- */
+// Mongoose Schema describing the structure and rules of the users collection
 const UserSchema = new Schema<IUser>(
   {
     image: {
@@ -96,10 +76,7 @@ const UserSchema = new Schema<IUser>(
   }
 );
 
-/**
- * Generates a JSON Web Token (JWT) containing the user's MongoDB ID.
- * The token is signed using our secret JWT_ACCESS_KEY and expires after 30 days.
- */
+// Generates a signed 30-day JWT containing the user ID
 UserSchema.methods.generateAccessToken = function (): string {
   return jwt.sign(
     {
@@ -110,10 +87,7 @@ UserSchema.methods.generateAccessToken = function (): string {
   );
 };
 
-/**
- * Securely compares a candidate plain-text password with the hashed password stored in the database.
- * Returns true if matching, false otherwise.
- */
+// Compares a candidate plain-text password with the stored bcrypt hash
 UserSchema.methods.comparePassword = async function (password: string): Promise<boolean> {
   return bcrypt.compare(password, this.password);
 };

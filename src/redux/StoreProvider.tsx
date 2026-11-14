@@ -1,16 +1,4 @@
-/**
- * ============================================================================
- * STORE PROVIDER (Client Component Redux Wrapper)
- * ============================================================================
- * 
- * Beginner's Guide:
- * In Next.js App Router, the Root Layout is a Server Component.
- * Server Components cannot use React Context directly (Redux uses React Context under the hood).
- * 
- * Therefore, we create this "use client" wrapper component.
- * We pass the store into `Provider`, making Redux available to all client components inside.
- * `useState(() => makeStore())` ensures the store is created exactly once per client session.
- */
+// Client component wrapper providing the Redux store to the component tree
 
 "use client";
 

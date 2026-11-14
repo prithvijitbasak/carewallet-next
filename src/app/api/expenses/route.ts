@@ -1,23 +1,4 @@
-/**
- * ============================================================================
- * EXPENSES API ROUTE (`POST /api/expenses`)
- * ============================================================================
- * 
- * Beginner's Guide:
- * 
- * What does this endpoint do?
- * Handles batch creation of expenses. A user can submit a single expense or an
- * entire array of expenses from the "Add Expenses" page.
- * 
- * Workflow:
- * 1. Authentication: Extracts and verifies JWT from cookie/header.
- * 2. Normalization: If a single object was sent, wraps it in an array `[body]`.
- * 3. Validation: Validates every item with Zod `validateExpense()`.
- *    - Valid items are collected into `validExpenses`.
- *    - Invalid items are collected into `invalidExpenses` with detailed error notes.
- * 4. Batch Insertion: `Expense.insertMany(validExpenses)` inserts all valid items
- *    in a single, fast database transaction.
- */
+// Handles batch expense creation and validation for the authenticated user
 
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/auth";

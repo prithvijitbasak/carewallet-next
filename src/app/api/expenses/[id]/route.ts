@@ -1,20 +1,4 @@
-/**
- * ============================================================================
- * DELETE EXPENSE API ROUTE (`DELETE /api/expenses/[id]`)
- * ============================================================================
- * 
- * Beginner's Guide to Secure Deletions:
- * 
- * Security Rule: IDOR Prevention (Insecure Direct Object Reference)
- * Notice that we do NOT simply run `Expense.findByIdAndDelete(id)`.
- * If we did, any logged-in user could delete ANY other user's expense simply by
- * guessing or knowing the ID!
- * 
- * Instead, we query:
- * `Expense.findOne({ _id: id, user: user._id })`
- * This guarantees that an expense can ONLY be deleted if it was created by
- * the currently authenticated user!
- */
+// Deletes a user-owned expense by ID with IDOR protection
 
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";

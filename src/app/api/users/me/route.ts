@@ -1,18 +1,4 @@
-/**
- * ============================================================================
- * CURRENT USER API ROUTE (`GET /api/users/me`)
- * ============================================================================
- * 
- * Beginner's Guide:
- * 
- * What does this endpoint do?
- * Returns the currently authenticated user's profile information.
- * 
- * Security & Serialization Steps:
- * 1. Checks JWT token from cookies/headers using `getAuthenticatedUser(req)`.
- * 2. Strips private fields (`password`, database internal `_id`).
- * 3. Serializes binary profile images to a Base64 string so the browser can display them.
- */
+// Fetches the authenticated user profile with base64 image serialization
 
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/auth";

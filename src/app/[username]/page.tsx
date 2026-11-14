@@ -1,23 +1,4 @@
-/**
- * ============================================================================
- * MAIN USER DASHBOARD PAGE (`/[username]`)
- * ============================================================================
- * 
- * Beginner's Guide:
- * 
- * What happens on this page?
- * 1. Server-Side Data Fetch:
- *    Fetches financial summaries from `/api/ssr/dashboard` before HTML is delivered to the browser.
- * 2. Visual Modules:
- *    - `<ClockCard />`: Real-time digital clock reflecting local time.
- *    - `<WelcomeAddBanner />`: Personalized welcome banner with "Add Expense" shortcut.
- *    - Metric Cards:
- *      * `<DayDetailsCard />`: Displays Today's spending total.
- *      * `<MonthDetailsCard />`: Displays Current Month's spending total.
- *      * `<YearDetailsCard />`: Displays Current Year's spending total.
- *    - `<SearchBoxSection />`: Search and filter past transactions.
- *    - `<DashboardAnalytics />`: Interactive monthly and yearly spending charts.
- */
+// Main dashboard page displaying financial metric cards, recent transactions, and analytics
 
 import React from "react";
 import ClockCard from "@/components/ClockCard";

@@ -1,17 +1,4 @@
-/**
- * ============================================================================
- * ANALYTICS PAGE (`/[username]/analytics`)
- * ============================================================================
- * 
- * Beginner's Guide:
- * 
- * This Server Component:
- * 1. Resolves dynamic route params (`await params`).
- * 2. Fetches analytics aggregates on the server (`ssrFetch<AnalyticsData>`).
- * 3. Feeds pre-calculated data directly into client visualization charts:
- *    - `<WeeklyExpenseChart />` (Recharts interactive bar chart for last 7 days)
- *    - `<DashboardAnalytics />` (Monthly & Yearly category breakdown charts)
- */
+// Server component page for expense analytics with pre-fetched weekly and category metrics
 
 import React from "react";
 import WeeklyExpenseChart from "@/components/analytics/WeeklyExpenseChart";

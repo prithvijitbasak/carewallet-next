@@ -1,17 +1,4 @@
-/**
- * ============================================================================
- * ANALYTICS SERVICE (Data Aggregation for Charts & Trends)
- * ============================================================================
- * 
- * Beginner's Guide:
- * 
- * This service powers the Analytics page:
- * 1. Weekly Trends: Queries the last 7 days of spending, divided by category.
- * 2. Monthly Distribution: Category breakdown for the current month (Bar/Pie charts).
- * 3. Yearly Overview: Full year category breakdown.
- * 
- * All time boundaries are normalized to the user's local timezone.
- */
+// Service aggregating weekly, monthly, and yearly expense metrics for charts
 
 import { IUser } from "@/models/User";
 import {
@@ -35,9 +22,7 @@ export interface AnalyticsData {
 }
 
 export class AnalyticsService {
-  /**
-   * Fetches weekly, monthly, and yearly aggregated spending data for the Analytics view.
-   */
+  // Fetches weekly, monthly, and yearly aggregated spending data for Analytics view
   async getAnalyticsData(user: IUser): Promise<AnalyticsData> {
     const now = new Date();
     let yearNum = now.getFullYear();
@@ -102,9 +87,7 @@ export class AnalyticsService {
     };
   }
 
-  /**
-   * Returns empty analytics data with 0 amounts for logged-out or placeholder states.
-   */
+  // Returns empty analytics fallback data with 0 amounts for all categories
   getEmptyAnalyticsData(): AnalyticsData {
     const emptyCategories = expenseCategories.map((cat) => ({
       category: cat,

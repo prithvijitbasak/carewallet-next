@@ -1,24 +1,8 @@
-/**
- * ============================================================================
- * DATE FORMATTING UTILITIES & COMPONENTS
- * ============================================================================
- * 
- * Beginner's Guide to Date Manipulation:
- * 
- * In web development, dates often exist in three distinct formats:
- * 1. ISO format (e.g. `2026-11-13T00:22:26.000Z`): The standard database representation.
- * 2. HTML Input format (e.g. `YYYY-MM-DD`): Required by `<input type="date" />`.
- * 3. Human-friendly display (e.g. `13-11-2026 | 00:22:26`, `13 Nov 2026`, or `13th November 2026`).
- * 
- * This file provides helper functions to convert cleanly between these formats.
- */
+// Date and currency formatting helper functions and components
 
 import React from "react";
 
-/**
- * Formats a Date or ISO string into a human-readable "DD-MM-YYYY | HH:mm:ss" string.
- * @example formatDateTime(new Date()) -> "13-11-2026 | 14:30:00"
- */
+// Formats a Date or ISO string into DD-MM-YYYY | HH:mm:ss string
 export const formatDateTime = (isoString: string | Date): string => {
   const date = new Date(isoString);
   const day = String(date.getDate()).padStart(2, "0");
@@ -32,10 +16,7 @@ export const formatDateTime = (isoString: string | Date): string => {
   return `${day}-${month}-${year} | ${hours}:${minutes}:${seconds}`;
 };
 
-/**
- * Formats a Date or ISO string into simple "DD-MM-YYYY" format.
- * @example formatDtConven("2026-11-13T00:00:00.000Z") -> "13-11-2026"
- */
+// Formats a Date or ISO string into simple DD-MM-YYYY format
 export const formatDtConven = (isoString: string | Date): string => {
   const date = new Date(isoString);
   const day = String(date.getDate()).padStart(2, "0");
@@ -45,10 +26,7 @@ export const formatDtConven = (isoString: string | Date): string => {
   return `${day}-${month}-${year}`;
 };
 
-/**
- * Formats a date into alphanumeric short date string, e.g. "13 Nov 2026".
- * Useful for tables, reports, and detail cards.
- */
+// Formats a date into alphanumeric short date string (e.g. 13 Nov 2026)
 export const alphaNumDate = (dateString: string | Date): string => {
   const date = new Date(dateString).toLocaleDateString("en-GB", {
     day: "2-digit",
@@ -58,18 +36,14 @@ export const alphaNumDate = (dateString: string | Date): string => {
   return date;
 };
 
-/**
- * Converts an HTML date input value ("YYYY-MM-DD") to standard "DD-MM-YYYY" string.
- */
+// Converts an HTML date input value (YYYY-MM-DD) to standard DD-MM-YYYY string
 export const formatInputDate = (dateString: string): string => {
   if (!dateString) return "";
   const [year, month, day] = dateString.split("-");
   return `${day}-${month}-${year}`;
 };
 
-/**
- * Converts a Date into "YYYY-MM-DD" format required by `<input type="date" />`.
- */
+// Converts a Date into YYYY-MM-DD format required by HTML date inputs
 export const toInputDateFormat = (dateString: string | Date): string => {
   const date = new Date(dateString);
   const year = date.getFullYear();
@@ -83,10 +57,7 @@ export interface BritishDateProps {
   date: string;
 }
 
-/**
- * React Component that renders a "DD-MM-YYYY" string into British English notation:
- * e.g., "1st January 2026" with superscript ordinal suffix (st, nd, rd, th).
- */
+// Component rendering a DD-MM-YYYY string into British English notation with superscript suffix
 export const BritishDate: React.FC<BritishDateProps> = ({ date }) => {
   if (!date) return null;
   const parts = date.split("-");

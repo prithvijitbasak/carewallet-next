@@ -1,18 +1,4 @@
-/**
- * ============================================================================
- * LOGOUT API ROUTE (`POST /api/auth/logout`)
- * ============================================================================
- * 
- * Beginner's Guide:
- * 
- * How does logging out work with HttpOnly Cookies?
- * Because HttpOnly cookies cannot be modified by JavaScript in the browser,
- * the client must tell the server to expire the cookie.
- * 
- * To invalidate the session cookie:
- * We set `maxAge: 0` on the "accessToken" cookie in the HTTP response.
- * The browser sees `maxAge: 0` and immediately deletes the cookie from its storage.
- */
+// Handles user logout by invalidating the HTTP-only session cookie
 
 import { NextResponse } from "next/server";
 

@@ -1,18 +1,4 @@
-/**
- * ============================================================================
- * DAY DETAILS SERVICE (Single-Day Expense Inspector)
- * ============================================================================
- * 
- * Beginner's Guide:
- * 
- * What does this service do?
- * When viewing the "Day Details" page:
- * 1. Takes the user's timezone into account to determine "today" by default.
- * 2. Parses the query date (in "DD-MM-YYYY" format).
- * 3. Calculates the previous day (`previousDate`) and next day (`nextDate`)
- *    enabling one-click navigation arrows (← Previous Day / Next Day →).
- * 4. Queries all expenses recorded for that calendar day and computes the daily sum.
- */
+// Service loading daily expenses and previous/next day navigation dates
 
 import { IUser } from "@/models/User";
 import { expenseRepository } from "@/repositories/expense.repository";
@@ -48,9 +34,7 @@ export interface DayDetailsQueryOptions {
 }
 
 export class DayDetailsService {
-  /**
-   * Loads all expenses for a specific date, alongside navigation dates (prev/next).
-   */
+  // Loads all expenses for a specific date alongside navigation dates
   async getDayDetailsData(
     user: IUser,
     options: DayDetailsQueryOptions = {}

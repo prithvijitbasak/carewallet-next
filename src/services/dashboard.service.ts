@@ -1,19 +1,4 @@
-/**
- * ============================================================================
- * DASHBOARD SERVICE (Business Logic Layer)
- * ============================================================================
- * 
- * Beginner's Guide to the Service Layer:
- * 
- * Why do we have a Service layer?
- * - The Controller/Route Handler handles HTTP requests (status codes, req.json()).
- * - The Repository handles database queries (Expense.aggregate, Expense.find).
- * - The Service coordinates the business logic:
- *   1. Identifies the user's local date/time based on their saved timezone.
- *   2. Calculates the exact start and end timestamps for Today, This Month, and This Year.
- *   3. Calls the ExpenseRepository to retrieve summaries and category breakdowns.
- *   4. Packages everything into an easy-to-use data structure for the Dashboard UI.
- */
+// Service calculating timezone-aware date boundaries and dashboard summaries
 
 import { IUser } from "@/models/User";
 import {
@@ -41,16 +26,7 @@ export interface DashboardData extends DashboardExpenseSummary {
 }
 
 export class DashboardService {
-  /**
-   * Assembles all required data for the main user dashboard:
-   * - Today's spending total
-   * - This month's spending total
-   * - This year's spending total
-   * - Category breakdowns for both month and year
-   * 
-   * Respects the user's specific timezone so that day/month boundaries
-   * are accurate to their local clock.
-   */
+  // Computes today, month, and year boundaries and fetches dashboard metrics
   async getDashboardData(user: IUser): Promise<DashboardData> {
     const now = new Date();
     let yearNum = now.getFullYear();
@@ -139,9 +115,7 @@ export class DashboardService {
     };
   }
 
-  /**
-   * Returns a safe default object with zeroed balances when user is not logged in.
-   */
+  // Returns empty dashboard summary fallback with zero totals
   getEmptyDashboardData(): DashboardData {
     const emptyCategories = expenseCategories.map((cat) => ({
       category: cat,

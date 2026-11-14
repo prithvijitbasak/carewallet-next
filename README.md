@@ -4,17 +4,6 @@
 
 ---
 
-## 📖 Beginner Friendly Documentation
-
-Are you learning this codebase or new to modern Next.js architecture? Check out our dedicated guide:
-👉 **[Read the Full Beginner's Guide (BEGINNER_GUIDE.md)](./BEGINNER_GUIDE.md)** for:
-- Architecture diagrams & 3-Tier pattern walkthrough
-- Detailed request-response lifecycles
-- Step-by-step explanations of Server Components, Repositories, Services, and Redux Toolkit
-- MongoDB aggregation pipelines explained simply
-
----
-
 ## ✨ Features
 
 - 🔐 **Secure Authentication**: JWT-based session tokens stored in secure HttpOnly cookies with bcrypt password hashing.

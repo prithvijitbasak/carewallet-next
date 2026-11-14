@@ -1,22 +1,4 @@
-/**
- * ============================================================================
- * USER LOGIN API ROUTE (`POST /api/auth/login`)
- * ============================================================================
- * 
- * Beginner's Guide to User Authentication:
- * 
- * 1. Identifier Flexibility:
- *    Users can log in with their username, email address, OR phone number!
- *    MongoDB's `$or` operator finds matching user documents across any of these 3 fields.
- * 
- * 2. Secure Password Verification:
- *    The stored password is a bcrypt hash. We cannot "decrypt" it. Instead,
- *    `userExist.comparePassword(password)` hashes the candidate password and checks
- *    if the resulting hashes match.
- * 
- * 3. Token Issuance:
- *    On success, we issue a signed JWT in an HttpOnly cookie and return a success JSON response.
- */
+// Handles user login, password verification, and JWT session cookie issuance
 
 import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";

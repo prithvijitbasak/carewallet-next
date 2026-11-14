@@ -1,26 +1,9 @@
-/**
- * ============================================================================
- * EXPENSE VALIDATOR (Zod Schema)
- * ============================================================================
- * 
- * Why do we use Zod?
- * Zod is a TypeScript-first schema declaration and validation library.
- * Instead of writing dozens of manual `if (!req.body.title) ...` statements,
- * we define a strict blueprint for our data.
- * 
- * Key features demonstrated here:
- * 1. String trimming & constraints: .trim().min(1).max(200)
- * 2. Preprocessing: converting human strings like "15-08-2026" (DD-MM-YYYY) into JavaScript Date objects.
- * 3. Type inference: `z.infer<typeof expenseSchema>` automatically gives us a TypeScript type!
- */
+// Zod validation schemas for expense creation, editing, and date parsing
 
 import { z } from "zod";
 import { expenseCategories } from "@/constants/expenseCategories";
 
-/**
- * Custom parser that converts a "DD-MM-YYYY" string into a valid JavaScript Date object.
- * Returns NaN if string format does not match.
- */
+// Converts a DD-MM-YYYY string into a valid JavaScript Date object
 export const parseDate = (val: unknown): unknown => {
   if (typeof val !== "string") return val;
 
@@ -35,9 +18,7 @@ export const parseDate = (val: unknown): unknown => {
   return new Date(year, month - 1, day);
 };
 
-/**
- * Zod validation schema for creating or updating an expense.
- */
+// Zod validation schema for creating or updating an expense
 export const expenseSchema = z.object({
   title: z
     .string()
@@ -68,12 +49,7 @@ export const expenseSchema = z.object({
     .optional(),
 });
 
-/**
- * Validates arbitrary input against the expenseSchema safely without throwing exceptions.
- * 
- * @param expenseData - The raw payload to validate
- * @returns Zod SafeParseReturnType containing either `.data` (if valid) or `.error` (if invalid).
- */
+// Safely validates arbitrary expense input against expenseSchema
 export const validateExpense = (expenseData: unknown) => {
   return expenseSchema.safeParse(expenseData);
 };

@@ -1,21 +1,4 @@
-/**
- * ============================================================================
- * `useTotalExpense` CUSTOM HOOK
- * ============================================================================
- * 
- * Beginner's Guide:
- * 
- * What does this hook do?
- * Automatically fetches the total spending amount for a given timeframe:
- * - A specific day (e.g., "15-08-2026")
- * - A specific month and year (e.g., month "08", year "2026")
- * - A specific year (e.g., year "2026")
- * 
- * How React Hooks manage state:
- * - `total`: The calculated numeric sum of expenses returned from the API.
- * - `loading`: True while the HTTP request is in-flight, false when complete.
- * - `error`: Error message string if something went wrong, or null if successful.
- */
+// Custom hook for fetching total expenses across day, month, or year timeframes
 
 "use client";
 
