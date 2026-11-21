@@ -1,10 +1,7 @@
-// User Mongoose model with password hashing and verification
-
 import mongoose, { Schema, Document, Model } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-// TypeScript interface defining all fields and methods on a User document
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
   image?: {
@@ -14,19 +11,18 @@ export interface IUser extends Document {
   fullName: string;
   username: string;
   email: string;
-  phone: string;
-  password: string; // Stored as a one-way bcrypt hash (never plain-text)
+  phone?: string;
+  password?: string;
+  googleId?: string;
   role: string;
   timezone: string;
   createdAt: Date;
   updatedAt: Date;
 
-  // Custom helper methods added to the User model
   generateAccessToken(): string;
   comparePassword(password: string): Promise<boolean>;
 }
 
-// Mongoose Schema describing the structure and rules of the users collection
 const UserSchema = new Schema<IUser>(
   {
     image: {
@@ -41,24 +37,27 @@ const UserSchema = new Schema<IUser>(
     username: {
       type: String,
       required: [true, "Username is required"],
-      unique: true, // Guarantees no two users share the same username
+      unique: true,
       trim: true,
     },
     email: {
       type: String,
       required: [true, "Email is required"],
-      unique: true, // Guarantees no two users share the same email
+      unique: true,
       trim: true,
     },
     phone: {
       type: String,
-      required: [true, "Phone is required"],
       unique: true,
+      sparse: true,
       trim: true,
     },
     password: {
       type: String,
-      required: [true, "Password is required"],
+    },
+    googleId: {
+      type: String,
+      sparse: true,
     },
     role: {
       type: String,
@@ -66,17 +65,15 @@ const UserSchema = new Schema<IUser>(
     },
     timezone: {
       type: String,
-      required: true,
+      default: "UTC",
       trim: true,
     },
   },
   {
-    // Automatically creates and manages `createdAt` and `updatedAt` Date fields
     timestamps: true,
   }
 );
 
-// Generates a signed 30-day JWT containing the user ID
 UserSchema.methods.generateAccessToken = function (): string {
   return jwt.sign(
     {
@@ -87,12 +84,13 @@ UserSchema.methods.generateAccessToken = function (): string {
   );
 };
 
-// Compares a candidate plain-text password with the stored bcrypt hash
 UserSchema.methods.comparePassword = async function (password: string): Promise<boolean> {
+  if (!this.password) {
+    return false;
+  }
   return bcrypt.compare(password, this.password);
 };
 
-// Next.js hot-reloads modules, so reuse existing model if compiled, or create a new one
 const User: Model<IUser> =
   mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
 
