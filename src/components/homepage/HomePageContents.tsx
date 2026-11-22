@@ -3,7 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { setAuthModalOpen } from "@/redux/slices/uiSlice";
 import HomePageHeader from "./HomePageHeader";
 import HomePageFooter from "./HomePageFooter";
 
@@ -14,14 +15,13 @@ interface HomePageContentsProps {
 export default function HomePageContents({
   currentYear = new Date().getFullYear(),
 }: HomePageContentsProps) {
+  const dispatch = useAppDispatch();
   const { isLogin, user } = useAppSelector((state) => state.auth);
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-gradient-to-b from-[#e8f5e9] to-white text-gray-800">
-      {/* Header */}
       <HomePageHeader />
 
-      {/* Hero Section */}
       <main className="flex-grow mt-24 px-4 sm:px-6 md:px-16 text-center">
         <motion.div
           className="max-w-3xl mx-auto"
@@ -39,25 +39,20 @@ export default function HomePageContents({
           </p>
 
           {!isLogin || !user ? (
-            <div className="flex justify-center gap-3 sm:gap-4">
-              <Link
-                href="/register"
-                className="px-5 sm:px-6 py-2.5 sm:py-3 bg-[#4caf50] text-white rounded-full font-semibold hover:bg-[#43a047] transition-all duration-300 text-sm sm:text-base"
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={() => dispatch(setAuthModalOpen(true))}
+                className="px-6 py-3 bg-[#4caf50] text-white rounded-full font-semibold hover:bg-[#43a047] transition-all duration-300 text-base cursor-pointer shadow-md hover:shadow-lg"
               >
                 Get Started
-              </Link>
-              <Link
-                href="/login"
-                className="px-5 sm:px-6 py-2.5 sm:py-3 border border-[#4caf50] text-[#4caf50] rounded-full font-semibold hover:bg-[#4caf50] hover:text-white transition-all duration-300 text-sm sm:text-base"
-              >
-                Sign In
-              </Link>
+              </button>
             </div>
           ) : (
-            <div className="flex justify-center gap-4">
+            <div className="flex justify-center">
               <Link
                 href={`/${user.username}`}
-                className="px-6 py-3 bg-[#4caf50] text-white rounded-full font-semibold hover:bg-[#43a047] transition-all duration-300"
+                className="px-6 py-3 bg-[#4caf50] text-white rounded-full font-semibold hover:bg-[#43a047] transition-all duration-300 shadow-md hover:shadow-lg"
               >
                 Go To Dashboard
               </Link>
@@ -65,7 +60,6 @@ export default function HomePageContents({
           )}
         </motion.div>
 
-        {/* Features Section */}
         <motion.section
           className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 mt-16"
           initial={{ opacity: 0 }}
@@ -104,7 +98,6 @@ export default function HomePageContents({
           </div>
         </motion.section>
 
-        {/* About Section */}
         <motion.section
           className="mt-16 sm:mt-20 bg-[#f1f8e9] rounded-2xl p-6 sm:p-8 shadow-inner"
           initial={{ opacity: 0, y: 30 }}
@@ -124,7 +117,6 @@ export default function HomePageContents({
         </motion.section>
       </main>
 
-      {/* Footer */}
       <HomePageFooter currentYear={currentYear} />
     </div>
   );

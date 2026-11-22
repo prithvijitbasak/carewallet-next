@@ -1,57 +1,71 @@
-// Handles user login, password verification, and JWT session cookie issuance
-
 import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";
 import User from "@/models/User";
-import { loginSchema } from "@/lib/validators/auth.validator";
+import Otp from "@/models/Otp";
 import { cookieOptions } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    const { identifier, otp } = body;
 
-    // Step 1: Validate request body against Zod loginSchema
-    const validation = loginSchema.safeParse(body);
-    if (!validation.success) {
+    if (!identifier || !otp) {
       return NextResponse.json(
-        {
-          message: "Validation error",
-          errors: validation.error.format(),
-        },
+        { message: "Username/email and verification code are required" },
         { status: 400 }
       );
     }
 
-    const { identifier, password } = validation.data;
+    const cleanIdentifier = identifier.toLowerCase().trim();
+    const cleanOtp = otp.toString().trim();
 
     await connectDb();
 
-    // Step 2: Search for user by username, email, or phone
     const userExist = await User.findOne({
-      $or: [
-        { username: identifier },
-        { email: identifier },
-        { phone: identifier },
-      ],
+      $or: [{ username: cleanIdentifier }, { email: cleanIdentifier }],
     });
 
     if (!userExist) {
       return NextResponse.json(
-        { message: "Invalid credentials" },
+        { message: "No account found with this email or username" },
         { status: 400 }
       );
     }
 
-    // Step 3: Compare candidate password with the stored bcrypt hash
-    const isPasswordMatch = await userExist.comparePassword(password);
-    if (!isPasswordMatch) {
+    const otpRecord = await Otp.findOne({
+      email: userExist.email,
+      otp: cleanOtp,
+      purpose: "login",
+    }).sort({ createdAt: -1 });
+
+    if (!otpRecord) {
       return NextResponse.json(
-        { message: "Invalid username or password" },
+        { message: "Invalid verification code" },
         { status: 400 }
       );
     }
 
-    // Step 4: Generate a 30-day JWT access token
+    if (otpRecord.isUsed) {
+      return NextResponse.json(
+        { message: "This verification code has already been used" },
+        { status: 400 }
+      );
+    }
+
+    const isExpired = otpRecord.expiresAt
+      ? otpRecord.expiresAt < new Date()
+      : Date.now() - new Date(otpRecord.createdAt).getTime() > 5 * 60 * 1000;
+
+    if (isExpired) {
+      return NextResponse.json(
+        { message: "This verification code has expired" },
+        { status: 400 }
+      );
+    }
+
+    otpRecord.isUsed = true;
+    await otpRecord.save();
+
     const accessToken = userExist.generateAccessToken();
 
     const response = NextResponse.json(
@@ -60,10 +74,9 @@ export async function POST(req: NextRequest) {
         userId: userExist._id.toString(),
         username: userExist.username,
       },
-      { status: 201 }
+      { status: 200 }
     );
 
-    // Step 5: Save token in HttpOnly cookie
     response.cookies.set(
       cookieOptions.accessToken.name,
       accessToken,

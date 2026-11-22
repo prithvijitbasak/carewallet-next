@@ -13,7 +13,6 @@ export interface IUser extends Document {
   email: string;
   phone?: string;
   password?: string;
-  googleId?: string;
   role: string;
   timezone: string;
   createdAt: Date;
@@ -55,10 +54,6 @@ const UserSchema = new Schema<IUser>(
     password: {
       type: String,
     },
-    googleId: {
-      type: String,
-      sparse: true,
-    },
     role: {
       type: String,
       default: "Normal user",
@@ -84,14 +79,19 @@ UserSchema.methods.generateAccessToken = function (): string {
   );
 };
 
-UserSchema.methods.comparePassword = async function (password: string): Promise<boolean> {
+UserSchema.methods.comparePassword = async function (
+  password: string
+): Promise<boolean> {
   if (!this.password) {
     return false;
   }
   return bcrypt.compare(password, this.password);
 };
 
-const User: Model<IUser> =
-  mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
+if (mongoose.models && mongoose.models.User) {
+  delete mongoose.models.User;
+}
+
+const User: Model<IUser> = mongoose.model<IUser>("User", UserSchema);
 
 export default User;

@@ -1,58 +1,50 @@
-// SSR preloaded state hydration provider and login modal container for home page
-
 "use client";
 
 import { useState, type ReactNode } from "react";
 import { Provider } from "react-redux";
 import { makeStore, type AppStore } from "./store";
 import { initialAuthState, type AuthState } from "./slices/authSlice";
-import { initialUiState, setLoginModalOpen } from "./slices/uiSlice";
-import LoginModal from "@/components/LoginModal";
+import { initialUiState, setAuthModalOpen } from "./slices/uiSlice";
+import AuthModal from "@/components/AuthModal";
 import { useAppDispatch, useAppSelector } from "./hooks";
-import { useRouter } from "next/navigation";
 
 type HomeStoreProviderProps = {
   children: ReactNode;
   authState?: Partial<AuthState>;
-  openLoginModal?: boolean;
+  openAuthModal?: boolean;
   store?: AppStore;
 };
 
-// Inner component accessing Redux state inside Provider
 function HomeStoreInner({ children }: { children: ReactNode }) {
   const dispatch = useAppDispatch();
-  const router = useRouter();
-  const open = useAppSelector((state) => state.ui.loginModalOpen);
+  const isAuthOpen = useAppSelector((state) => state.ui.authModalOpen);
 
   return (
     <>
       {children}
-      {/* Global Login Modal accessible from any button on the home page */}
-      <LoginModal
-        open={open}
-        onClose={() => dispatch(setLoginModalOpen(false))}
-        onSuccess={() => {
-          dispatch(setLoginModalOpen(false));
-          router.refresh(); // Re-runs the Server Component to refresh server data
-        }}
+      <AuthModal
+        open={isAuthOpen}
+        onClose={() => dispatch(setAuthModalOpen(false))}
       />
     </>
   );
 }
 
-const HomeStoreProvider = ({
+export default function HomeStoreProvider({
   children,
   authState,
-  openLoginModal = false,
+  openAuthModal = false,
   store: initialStore,
-}: HomeStoreProviderProps) => {
-  // Preload Redux store with authState received from Next.js Server Component
+}: HomeStoreProviderProps) {
   const [store] = useState<AppStore>(
     () =>
       initialStore ||
       makeStore({
         auth: { ...initialAuthState, ...authState },
-        ui: { ...initialUiState, loginModalOpen: openLoginModal },
+        ui: {
+          ...initialUiState,
+          authModalOpen: openAuthModal,
+        },
       })
   );
 
@@ -61,6 +53,4 @@ const HomeStoreProvider = ({
       <HomeStoreInner>{children}</HomeStoreInner>
     </Provider>
   );
-};
-
-export default HomeStoreProvider;
+}

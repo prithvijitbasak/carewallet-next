@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   reactCompiler: true,
   turbopack: {
     rules: {
@@ -10,6 +9,20 @@ const nextConfig: NextConfig = {
         as: "*.css",
       },
     },
+  },
+  async redirects() {
+    return [
+      {
+        source: "/login",
+        destination: "/?auth=true",
+        permanent: false,
+      },
+      {
+        source: "/register",
+        destination: "/?auth=true",
+        permanent: false,
+      },
+    ];
   },
 };
 

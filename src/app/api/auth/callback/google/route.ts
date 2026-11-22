@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     const code = searchParams.get("code");
 
     if (!code) {
-      return NextResponse.redirect(new URL("/login", req.url));
+      return NextResponse.redirect(new URL("/?auth=true", req.url));
     }
 
     const clientId =
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
     const tokenData = await tokenResponse.json();
 
     if (!tokenData.access_token) {
-      return NextResponse.redirect(new URL("/login", req.url));
+      return NextResponse.redirect(new URL("/?auth=true", req.url));
     }
 
     const userResponse = await fetch(
@@ -50,21 +50,18 @@ export async function GET(req: NextRequest) {
     const googleUser = await userResponse.json();
 
     if (!googleUser.email) {
-      return NextResponse.redirect(new URL("/login", req.url));
+      return NextResponse.redirect(new URL("/?auth=true", req.url));
     }
 
     await connectDb();
 
-    let user = await User.findOne({
-      $or: [{ googleId: googleUser.id }, { email: googleUser.email }],
-    });
+    const cleanEmail = googleUser.email.toLowerCase().trim();
+
+    let user = await User.findOne({ email: cleanEmail });
 
     if (!user) {
-      const emailPrefix = googleUser.email
-        .split("@")[0]
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, "");
-      let username = emailPrefix || "user";
+      const emailPrefix = cleanEmail.split("@")[0];
+      let username = emailPrefix;
       let counter = 1;
 
       while (await User.findOne({ username })) {
@@ -75,16 +72,10 @@ export async function GET(req: NextRequest) {
       user = await User.create({
         fullName: googleUser.name || "Google User",
         username: username,
-        email: googleUser.email,
-        googleId: googleUser.id,
+        email: cleanEmail,
         timezone: "UTC",
         role: "Normal user",
       });
-    } else {
-      if (!user.googleId) {
-        user.googleId = googleUser.id;
-        await user.save();
-      }
     }
 
     const accessToken = user.generateAccessToken();
@@ -100,7 +91,7 @@ export async function GET(req: NextRequest) {
     );
 
     return response;
-  } catch (error) {
-    return NextResponse.redirect(new URL("/login", req.url));
+  } catch {
+    return NextResponse.redirect(new URL("/?auth=true", req.url));
   }
 }
