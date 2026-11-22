@@ -12,10 +12,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(new URL("/?auth=true", req.url));
     }
 
-    const clientId =
-      process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-    const clientSecret =
-      process.env.GOOGLE_CLIENT_SECRET || process.env.NEXT_PUBLIC_GOOGLE_SECRET;
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
     const redirectUri = `${req.nextUrl.origin}/api/auth/callback/google`;
 
     const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {

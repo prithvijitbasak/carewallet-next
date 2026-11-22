@@ -1,5 +1,3 @@
-// Global React Query, Redux, and Toast notification providers
-
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -9,8 +7,8 @@ import { Provider } from "react-redux";
 import { store } from "@/redux/store";
 import { useAppDispatch } from "@/redux/hooks";
 import { fetchUser } from "@/redux/slices/authSlice";
+import ProgressBar from "@/components/ProgressBar";
 
-// Restores the authenticated user session into Redux on app mount
 function AuthInitializer({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch();
 
@@ -22,14 +20,13 @@ function AuthInitializer({ children }: { children: React.ReactNode }) {
 }
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-  // `useState(() => new QueryClient(...))` ensures QueryClient is instantiated once per user session
   const [queryClient] = useState(
     () =>
       new QueryClient({
         defaultOptions: {
           queries: {
-            refetchOnWindowFocus: false, // Don't trigger refetches just because user changed tabs
-            retry: 1,                    // Retry failed requests once before showing an error
+            refetchOnWindowFocus: false,
+            retry: 1,
           },
         },
       })
@@ -39,8 +36,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
         <AuthInitializer>
+          <ProgressBar />
           {children}
-          {/* Global toast notification system configured to dismiss automatically after 3 seconds */}
           <ToastContainer position="top-right" autoClose={3000} />
         </AuthInitializer>
       </QueryClientProvider>

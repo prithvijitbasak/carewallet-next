@@ -101,3 +101,18 @@ html, body {
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
+
+#nprogress .bar {
+  background: #4caf50 !important;
+  height: 3px !important;
+}
+
+#nprogress .peg {
+  box-shadow: 0 0 10px #4caf50, 0 0 5px #4caf50 !important;
+}
+
+#nprogress .spinner-icon {
+  border-top-color: #4caf50 !important;
+  border-left-color: #4caf50 !important;
+}
+
