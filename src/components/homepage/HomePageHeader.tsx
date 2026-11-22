@@ -2,9 +2,11 @@
 
 import React from "react";
 import Link from "next/link";
-import { useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { setAuthModalOpen } from "@/redux/slices/uiSlice";
 
 export default function HomePageHeader() {
+  const dispatch = useAppDispatch();
   const { isLogin, user } = useAppSelector((state) => state.auth);
 
   return (
@@ -22,20 +24,13 @@ export default function HomePageHeader() {
             {user.fullName || "My Profile"}
           </Link>
         ) : (
-          <>
-            <Link
-              href="/register"
-              className="px-3 sm:px-4 py-1.5 sm:py-2 bg-[#4caf50] text-white rounded-full hover:bg-[#43a047] transition-all duration-300 text-sm sm:text-base font-medium"
-            >
-              Sign Up
-            </Link>
-            <Link
-              href="/login"
-              className="px-3 sm:px-4 py-1.5 sm:py-2 border border-[#4caf50] text-[#4caf50] rounded-full hover:bg-[#4caf50] hover:text-white transition-all duration-300 text-sm sm:text-base font-medium"
-            >
-              Sign In
-            </Link>
-          </>
+          <button
+            type="button"
+            onClick={() => dispatch(setAuthModalOpen(true))}
+            className="px-4 py-2 bg-[#4caf50] text-white rounded-full hover:bg-[#43a047] transition-all duration-300 text-sm sm:text-base font-medium cursor-pointer"
+          >
+            Get Started
+          </button>
         )}
       </nav>
     </header>

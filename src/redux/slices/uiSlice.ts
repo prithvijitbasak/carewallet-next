@@ -1,23 +1,30 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface UiState {
-  loginModalOpen: boolean;
+  authModalOpen: boolean;
 }
 
 export const initialUiState: UiState = {
-  loginModalOpen: false,
+  authModalOpen: false,
 };
 
 export const uiSlice = createSlice({
   name: "ui",
   initialState: initialUiState,
   reducers: {
+    setAuthModalOpen: (state, action: PayloadAction<boolean>) => {
+      state.authModalOpen = action.payload;
+    },
     setLoginModalOpen: (state, action: PayloadAction<boolean>) => {
-      state.loginModalOpen = action.payload;
+      state.authModalOpen = action.payload;
+    },
+    setRegisterModalOpen: (state, action: PayloadAction<boolean>) => {
+      state.authModalOpen = action.payload;
     },
   },
 });
 
-export const { setLoginModalOpen } = uiSlice.actions;
+export const { setAuthModalOpen, setLoginModalOpen, setRegisterModalOpen } =
+  uiSlice.actions;
 
 export default uiSlice.reducer;

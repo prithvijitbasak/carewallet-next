@@ -1,84 +1,85 @@
-// Handles user registration, password hashing, validation, and auto-login
-
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcrypt";
 import connectDb from "@/lib/db";
 import User from "@/models/User";
-import { signupSchema } from "@/lib/validators/auth.validator";
-import { isValidTimezone } from "@/lib/timezone";
+import Otp from "@/models/Otp";
 import { cookieOptions } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    const { fullName, username, email, otp, timezone } = body;
 
-    // Step 1: Validate payload against Zod schema
-    const validation = signupSchema.safeParse(body);
-    if (!validation.success) {
+    if (!fullName || !username || !email || !otp) {
       return NextResponse.json(
-        {
-          message: "Validation error",
-          errors: validation.error.format(),
-        },
+        { message: "Full name, username, email, and OTP are required" },
         { status: 400 }
       );
     }
 
-    const { fullName, username, email, phone, password, role, timezone } =
-      validation.data;
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanUsername = username.toLowerCase().trim();
+    const cleanOtp = otp.toString().trim();
 
     await connectDb();
 
-    // Step 2: Ensure username, email, and phone number are unique
-    const userExist = await User.findOne({
-      $or: [{ username }, { email }, { phone }],
-    });
+    const otpRecord = await Otp.findOne({
+      email: cleanEmail,
+      otp: cleanOtp,
+      purpose: "register",
+    }).sort({ createdAt: -1 });
 
-    if (userExist) {
-      if (userExist.username === username) {
-        return NextResponse.json(
-          { message: "This username already exists" },
-          { status: 400 }
-        );
-      }
-      if (userExist.email === email) {
-        return NextResponse.json(
-          { message: "This email is already registered" },
-          { status: 400 }
-        );
-      }
-      if (userExist.phone === phone) {
-        return NextResponse.json(
-          { message: "This phone number is already used" },
-          { status: 400 }
-        );
-      }
-    }
-
-    // Step 3: Validate timezone string
-    const valid = await isValidTimezone(timezone);
-    if (!valid) {
+    if (!otpRecord) {
       return NextResponse.json(
-        { message: "Invalid or unsupported timezone selected" },
+        { message: "Invalid verification code" },
         { status: 400 }
       );
     }
 
-    // Step 4: Hash password with bcrypt (10 salt rounds)
-    const hashedPassword = await bcrypt.hash(password, 10);
+    if (otpRecord.isUsed) {
+      return NextResponse.json(
+        { message: "This verification code has already been used" },
+        { status: 400 }
+      );
+    }
 
-    // Step 5: Save new User record into MongoDB
+    const isExpired = otpRecord.expiresAt
+      ? otpRecord.expiresAt < new Date()
+      : Date.now() - new Date(otpRecord.createdAt).getTime() > 5 * 60 * 1000;
+
+    if (isExpired) {
+      return NextResponse.json(
+        { message: "This verification code has expired" },
+        { status: 400 }
+      );
+    }
+
+    const existingUsername = await User.findOne({ username: cleanUsername });
+    if (existingUsername) {
+      return NextResponse.json(
+        { message: "This username already exists" },
+        { status: 400 }
+      );
+    }
+
+    const existingEmail = await User.findOne({ email: cleanEmail });
+    if (existingEmail) {
+      return NextResponse.json(
+        { message: "This email is already registered" },
+        { status: 400 }
+      );
+    }
+
     const userCreated = await User.create({
-      fullName,
-      username,
-      email,
-      phone,
-      password: hashedPassword,
-      role,
-      timezone,
+      fullName: fullName.trim(),
+      username: cleanUsername,
+      email: cleanEmail,
+      role: "Normal user",
+      timezone: timezone || "UTC",
     });
 
-    // Step 6: Generate JWT access token
+    otpRecord.isUsed = true;
+    await otpRecord.save();
+
     const accessToken = userCreated.generateAccessToken();
 
     const response = NextResponse.json(
@@ -90,7 +91,6 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
 
-    // Set secure HttpOnly cookie so the user is logged in
     response.cookies.set(
       cookieOptions.accessToken.name,
       accessToken,
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
     );
 
     return response;
-  } catch (error: unknown) {
+  } catch (error) {
     console.error("Error in registration:", error);
     return NextResponse.json(
       { message: "Server error, please try again later." },

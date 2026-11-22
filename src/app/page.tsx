@@ -1,15 +1,21 @@
-// Landing page with server-side authentication check and hydration
-
 import React from "react";
 import HomeStoreProvider from "@/redux/HomeStoreProvider";
 import HomePageContents from "@/components/homepage/HomePageContents";
 import { getAuthenticatedUserFromCookies } from "@/lib/auth";
 
-// Render dynamically on demand so user auth cookies are always fresh
 export const dynamic = "force-dynamic";
 
-export default async function HomePage() {
-  // Check if visitor has a valid active session token
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ auth?: string; login?: string; register?: string }>;
+}) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const shouldOpenAuthModal =
+    resolvedSearchParams?.auth === "true" ||
+    resolvedSearchParams?.login === "true" ||
+    resolvedSearchParams?.register === "true";
+
   const authUser = await getAuthenticatedUserFromCookies();
   const isLogin = Boolean(authUser);
   const user = authUser
@@ -27,8 +33,8 @@ export default async function HomePage() {
         user,
         loading: false,
       }}
+      openAuthModal={shouldOpenAuthModal}
     >
-      {/* Visual presentation component for the landing page */}
       <HomePageContents currentYear={currentYear} />
     </HomeStoreProvider>
   );
